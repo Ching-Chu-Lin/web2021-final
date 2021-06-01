@@ -1,0 +1,12 @@
+{
+  "name": "web2021-final",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/Ching-Chu-Lin/web2021-final.git",
+  "author": "Ching-Chu-Lin <b06902111@ntu.edu.tw>",
+  "license": "MIT",
+  "scripts": {
+      "start" : "cd frontend && yarn start",
+      "server": "cd backend && yarn server"
+  }
+}
