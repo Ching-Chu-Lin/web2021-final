@@ -1,0 +1,13 @@
+@import url("https://fonts.googleapis.com/icon?family=Material+Icons");
+
+.App {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.material-icons {
+  font-size: 14px;
+}
