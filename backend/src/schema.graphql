@@ -1,0 +1,33 @@
+type Query {
+  queryUser(username: String!): User!
+  queryUserAppointment(username: String!): [Appointment!]
+  queryAppointment: [Appointment!] # show all appointment
+}
+
+type Mutation {
+  createUser(username: String!, password: String!): User!
+  createAppointment(data: CreatAppointmentInput!): Appointment!
+  deleteUser(id: ID!): User!
+  deleteAppointment(id: ID!): Appointment!
+}
+
+input CreatAppointmentInput {
+  username: String!
+  date: String!
+  description: String
+}
+
+type User {
+  id: ID!
+  name: String!
+  password: String!
+  record: [String!]
+  appointments: [Appointment!]
+}
+
+type Appointment {
+  id: ID!
+  date: String!
+  patient: User!
+  description: String
+}
