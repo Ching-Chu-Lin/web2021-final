@@ -1,85 +1,85 @@
 import moment from "moment";
 import { makeStyles, GridList, GridListTile, Icon } from "@material-ui/core";
-import { Button } from "antd";
+import Daily from "./Daily";
 
-const data = [
-  {
-    date: "2021-06-20",
-    availableTime: "",
-  },
-  {
-    date: "2021-06-21",
-    physiotherapyStudent: "怪醫黑傑克",
-    availableTime: "18:00-20:00",
-    numbers: 3,
-    patients: { name: "" },
-  },
-  {
-    date: "2021-06-22",
-    availableTime: "",
-  },
-  {
-    date: "2021-06-23",
-    physiotherapyStudent: "古利夏．葉卡",
-    availableTime: "18:00-20:00",
-    numbers: 3,
-    patients: null,
-  },
-  {
-    date: "2021-06-24",
-    availableTime: "",
-  },
-  {
-    date: "2021-06-25",
-    physiotherapyStudent: "喬巴",
-    availableTime: "18:00-20:00",
-    numbers: 3,
-    patients: null,
-  },
-  {
-    date: "2021-06-26",
-    availableTime: "",
-  },
-  {
-    date: "2021-06-27",
-    availableTime: "",
-  },
-  {
-    date: "2021-06-28",
-    physiotherapyStudent: "雷歐力",
-    availableTime: "18:00-20:00",
-    numbers: 3,
-    patients: null,
-  },
-  {
-    date: "2021-06-29",
-    availableTime: "",
-  },
-  {
-    date: "2021-06-30",
-    physiotherapyStudent: "提姆．馬可",
-    availableTime: "18:00-20:00",
-    numbers: 3,
-    patients: null,
-  },
-  {
-    date: "2021-07-01",
-    availableTime: "",
-  },
-  {
-    date: "2021-07-02",
-    physiotherapyStudent: "怪醫黑傑克",
-    availableTime: "18:00-20:00",
-    numbers: 3,
-    patients: null,
-  },
-  {
-    date: "2021-07-03",
-    availableTime: "",
-  },
-];
+// const data = [
+//   {
+//     date: "2021-06-20",
+//     availableTime: "",
+//   },
+//   {
+//     date: "2021-06-21",
+//     physiotherapyStudent: "怪醫黑傑克",
+//     availableTime: "18:00-20:00",
+//     numbers: 3,
+//     patients: { name: "" },
+//   },
+//   {
+//     date: "2021-06-22",
+//     availableTime: "",
+//   },
+//   {
+//     date: "2021-06-23",
+//     physiotherapyStudent: "古利夏．葉卡",
+//     availableTime: "18:00-20:00",
+//     numbers: 3,
+//     patients: null,
+//   },
+//   {
+//     date: "2021-06-24",
+//     availableTime: "",
+//   },
+//   {
+//     date: "2021-06-25",
+//     physiotherapyStudent: "喬巴",
+//     availableTime: "18:00-20:00",
+//     numbers: 3,
+//     patients: null,
+//   },
+//   {
+//     date: "2021-06-26",
+//     availableTime: "",
+//   },
+//   {
+//     date: "2021-06-27",
+//     availableTime: "",
+//   },
+//   {
+//     date: "2021-06-28",
+//     physiotherapyStudent: "雷歐力",
+//     availableTime: "18:00-20:00",
+//     numbers: 3,
+//     patients: null,
+//   },
+//   {
+//     date: "2021-06-29",
+//     availableTime: "",
+//   },
+//   {
+//     date: "2021-06-30",
+//     physiotherapyStudent: "提姆．馬可",
+//     availableTime: "18:00-20:00",
+//     numbers: 3,
+//     patients: null,
+//   },
+//   {
+//     date: "2021-07-01",
+//     availableTime: "",
+//   },
+//   {
+//     date: "2021-07-02",
+//     physiotherapyStudent: "怪醫黑傑克",
+//     availableTime: "18:00-20:00",
+//     numbers: 3,
+//     patients: null,
+//   },
+//   {
+//     date: "2021-07-03",
+//     availableTime: "",
+//   },
+// ];
 
-const Calendar = () => {
+const Calendar = ({ user }) => {
   const useStyles = makeStyles((theme) => ({
     root: {
       display: "flex",
@@ -122,7 +122,6 @@ const Calendar = () => {
 
   const weekdayName = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const showingDays = nextTwoWeeks();
-  console.log(data);
 
   return (
     <div className={classes.root}>
@@ -134,7 +133,10 @@ const Calendar = () => {
         ))}
       </GridList>
       <GridList cellHeight={200} cols={7} className={classes.date}>
-        {data.map((day) => {
+        {showingDays.map((date) => (
+          <Daily user={user} date={date} />
+        ))}
+        {/* {data.map((day) => {
           console.log(day);
           const thisDay = moment(day.date);
 
@@ -154,17 +156,19 @@ const Calendar = () => {
               <p>服務時間：{day.availableTime}</p>
               <p>目前預約人數：{day.numbers}</p>
               {day.patients ? (
-                <Button type="primary" style={{ background: "green" }}>
-                  {/* <Icon>done</Icon> */}
+                <Button
+                  type="primary"
+                  style={{ background: "rgb(7, 181, 59)" }}
+                >
                   <span class="material-icons">done</span>
                   已預約
                 </Button>
               ) : (
                 <Button type="primary">預約</Button>
-              )}
+              )} 
             </GridListTile>
           );
-        })}
+        })} */}
       </GridList>
     </div>
   );
