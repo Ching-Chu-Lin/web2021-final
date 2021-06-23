@@ -11,6 +11,8 @@ const AppointmentModal = ({
 }) => {
   const [form] = Form.useForm();
 
+  const { TextArea } = Input;
+
   const isReadOnly = (mode) => {
     switch (mode) {
       case "create":
@@ -78,7 +80,13 @@ const AppointmentModal = ({
           <Button key="delete" type="danger" onClick={onDelete}>
             刪除預約
           </Button>,
-          <Button key="cancel" onClick={onCancel}>
+          <Button
+            key="cancel"
+            onClick={() => {
+              onCancel();
+              setReadOnly(true);
+            }}
+          >
             取消
           </Button>,
         ];
@@ -95,12 +103,7 @@ const AppointmentModal = ({
       onCancel={onCancel}
       onOk={onOk}
     >
-      <Form
-        form={form}
-        layout="vertical"
-        name="form_in_modal"
-        initialValues={appointment || {}}
-      >
+      <Form form={form} name="form_in_modal" initialValues={appointment || {}}>
         <Form.Item
           name="part"
           label="受傷部位"
@@ -128,11 +131,11 @@ const AppointmentModal = ({
             max={10}
             step={0.1}
             marks={{ 0: "0", 10: "10" }}
-            readOnly={readOnly}
+            disabled={readOnly}
           />
         </Form.Item>
         <Form.Item name="description" label="簡單描述">
-          <Input readOnly={readOnly} />
+          <TextArea readOnly={readOnly} autoSize />
         </Form.Item>
       </Form>
     </Modal>

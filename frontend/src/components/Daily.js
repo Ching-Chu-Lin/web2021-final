@@ -2,7 +2,7 @@ import { useState } from "react";
 import moment from "moment";
 import { makeStyles, GridListTile } from "@material-ui/core";
 import { Button } from "antd";
-import AppointmentModal from "./AppointmentModal";
+import AppointmentModal from "./modals/AppointmentModal";
 
 const Daily = ({ user, date }) => {
   const useStyles = makeStyles((theme) => ({
@@ -87,7 +87,7 @@ const Daily = ({ user, date }) => {
               setModalVisible(true);
             }}
           >
-            <span class="material-icons">done</span>
+            <span className="material-icons">done</span>
             已預約
           </Button>
           <AppointmentModal

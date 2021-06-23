@@ -7,7 +7,7 @@ import UserControl from "../components/UserControl";
 
 const App = () => {
   const { Header, Sider, Content } = Layout;
-  const [user, setUser] = useState({});
+  const [user, setUser] = useState({ name: "利姆路", identity: "a" });
   return (
     <div className="App">
       <Layout>
