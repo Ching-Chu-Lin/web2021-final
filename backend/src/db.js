@@ -2,10 +2,10 @@ import mongoose from "mongoose";
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
-  name: { type: String, required: true },
+  username: { type: String, required: true },
   password: { type: String, require: true },
+  identity: { type: String, enum: ["patient", "doctor"], require: true },
   record: [{ type: String, required: true }],
-  appointments: [{ type: mongoose.Types.ObjectId, ref: "Appointment" }],
 });
 
 const appointmentSchema = new Schema({
@@ -14,7 +14,24 @@ const appointmentSchema = new Schema({
   description: { type: String },
 });
 
+const OpendaySchema = new Schema({
+  weekday: {
+    type: String,
+    enum: [
+      "SUNDAY",
+      "MONDAY",
+      "TUESDAY",
+      "WEDNESDAY",
+      "THURSDAY",
+      "FRIDAY",
+      "SATURDAY",
+    ],
+    require: true,
+  },
+});
+
 const UserModel = mongoose.model("User", userSchema);
 const AppointmentModel = mongoose.model("Appointment", appointmentSchema);
+const OpendayModel = mongoose.model("Openday", OpendaySchema);
 
-export default { UserModel, AppointmentModel };
+export default { UserModel, AppointmentModel, OpendayModel };

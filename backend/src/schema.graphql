@@ -1,28 +1,53 @@
 type Query {
   queryUser(username: String!): User!
-  queryUserAppointment(username: String!): [Appointment!]
-  queryAppointment: [Appointment!] # show all appointment
+  queryAppointment(date: String!): [Appointment!]
+  queryOpenday: [Weekday!]
 }
 
 type Mutation {
-  createUser(username: String!, password: String!): User!
-  createAppointment(data: CreatAppointmentInput!): Appointment!
+  signup(data: CreateUserInput!): User! #createUser
+  login(username: String, password: String): User!
+
   deleteUser(id: ID!): User!
+  updateUserUsername(id: ID!, username: String!): User!
+  updateUserPassword(id: ID!, password: String!): User!
+
+  createAppointment(data: CreatAppointmentInput!): Appointment!
   deleteAppointment(id: ID!): Appointment!
+  updateAppointmentDescription(id: ID!, description: String): Appointment!
+
+  createOpenday(weekday: Weekday): Weekday!
+  deleteOpenday(weekday: Weekday): Weekday!
 }
 
-input CreatAppointmentInput {
+enum Weekday {
+  SUNDAY
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+}
+
+input CreateUserInput {
   username: String!
-  date: String!
-  description: String
+  password: String!
+  identity: String!
 }
 
 type User {
   id: ID!
-  name: String!
+  username: String!
   password: String!
+  identity: String!
   record: [String!]
-  appointments: [Appointment!]
+}
+
+input CreatAppointmentInput {
+  date: String!
+  username: String!
+  description: String
 }
 
 type Appointment {
