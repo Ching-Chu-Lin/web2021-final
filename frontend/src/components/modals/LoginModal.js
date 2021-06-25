@@ -1,14 +1,17 @@
 import { Modal, Form, Input, Radio, Button, Checkbox } from "antd";
 import { useState } from "react";
+import { SAVED_USER } from "../../constants";
 
 const LoginModal = ({ visible, onCreate, onCancel }) => {
   const [form] = Form.useForm();
 
-  const [loginInfo, setLoginInfo] = useState({}); // TODO: load from storage
+  const [loginInfo, setLoginInfo] = useState(
+    JSON.parse(localStorage.getItem(SAVED_USER)) || {}
+  );
 
   const rememberLogin = (value) => {
     setLoginInfo(value);
-    // TODO: save to storage
+    localStorage.setItem(SAVED_USER, JSON.stringify(value));
   };
 
   const onOk = () => {
