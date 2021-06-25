@@ -88,8 +88,8 @@ const LoginModal = ({ visible, onCreate, onCancel }) => {
           ]}
         >
           <Radio.Group>
-            <Radio value="a">校隊學生</Radio>
-            <Radio value="b">物治學生</Radio>
+            <Radio value="team">校隊學生</Radio>
+            <Radio value="physiotherapy">物治學生</Radio>
           </Radio.Group>
         </Form.Item>
         <Form.Item name="remember" valuePropName="checked">

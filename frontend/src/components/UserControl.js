@@ -24,6 +24,8 @@ const UserControl = ({ user, setUser }) => {
     },
   ]);
 
+  // TODO: receive new records from subscription
+
   const [currentRecord, setCurrentRecord] = useState({});
 
   const isLogin = (user) => {
@@ -65,25 +67,27 @@ const UserControl = ({ user, setUser }) => {
                 更改密碼
               </Menu.Item>
             </SubMenu>
-            <SubMenu
-              key="my-record"
-              title="我的病歷"
-              onTitleClick={() => {
-                console.log("fetch records");
-              }}
-            >
-              {records.map((record) => (
-                <Menu.Item
-                  key="record.date"
-                  onClick={() => {
-                    setCurrentRecord(record);
-                    setRecordModalVisible(true);
-                  }}
-                >
-                  {record.date}
-                </Menu.Item>
-              ))}
-            </SubMenu>
+            {user.identity === "team" && (
+              <SubMenu
+                key="my-record"
+                title="我的病歷"
+                onTitleClick={() => {
+                  console.log("fetch records");
+                }}
+              >
+                {records.map((record) => (
+                  <Menu.Item
+                    key="record.date"
+                    onClick={() => {
+                      setCurrentRecord(record);
+                      setRecordModalVisible(true);
+                    }}
+                  >
+                    {record.date}
+                  </Menu.Item>
+                ))}
+              </SubMenu>
+            )}
           </Menu>
           <ChangePasswordModal
             visible={cpModalVisible}

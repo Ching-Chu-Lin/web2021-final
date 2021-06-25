@@ -37,7 +37,6 @@ const ChangePasswordModal = ({ visible, user, onCreate, onCancel }) => {
     >
       <Form
         form={form}
-        layout="vertical"
         name="form_in_modal"
         initialValues={{ name: user.name }}
       >

@@ -1,5 +1,6 @@
-import { Modal, Form, Input, Slider, Button } from "antd";
+import { Modal, Form, Button } from "antd";
 import { useState } from "react";
+import AppointmentForm from "../forms/AppointmentForm";
 
 const AppointmentModal = ({
   visible,
@@ -10,8 +11,6 @@ const AppointmentModal = ({
   onDelete,
 }) => {
   const [form] = Form.useForm();
-
-  const { TextArea } = Input;
 
   const isReadOnly = (mode) => {
     switch (mode) {
@@ -28,7 +27,8 @@ const AppointmentModal = ({
 
   const onOk = () => {
     form.validateFields().then((values) => {
-      form.resetFields();
+      // form.resetFields();
+      setReadOnly(true);
       values = { ...values, description: values.description || "" };
       onCreate(values);
     });
@@ -59,7 +59,7 @@ const AppointmentModal = ({
     switch (mode) {
       case "create":
         return [
-          <Button key="create" onClick={onOk}>
+          <Button key="create" type="primary" onClick={onOk}>
             預約
           </Button>,
           <Button key="cancel" onClick={onCancel}>
@@ -103,41 +103,12 @@ const AppointmentModal = ({
       onCancel={onCancel}
       onOk={onOk}
     >
-      <Form form={form} name="form_in_modal" initialValues={appointment || {}}>
-        <Form.Item
-          name="part"
-          label="受傷部位"
-          rules={[
-            {
-              required: true,
-              message: "請輸入受傷部位",
-            },
-          ]}
-        >
-          <Input readOnly={readOnly} />
-        </Form.Item>
-
-        <Form.Item
-          name="level"
-          label="疼痛程度"
-          rules={[
-            {
-              required: true,
-              message: "請選擇疼痛程度",
-            },
-          ]}
-        >
-          <Slider
-            max={10}
-            step={0.1}
-            marks={{ 0: "0", 10: "10" }}
-            disabled={readOnly}
-          />
-        </Form.Item>
-        <Form.Item name="description" label="簡單描述">
-          <TextArea readOnly={readOnly} autoSize />
-        </Form.Item>
-      </Form>
+      {console.log(appointment)}
+      <AppointmentForm
+        form={form}
+        initialValues={appointment || {}}
+        readOnly={readOnly}
+      />
     </Modal>
   );
 };
