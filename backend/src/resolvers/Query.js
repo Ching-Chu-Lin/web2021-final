@@ -4,33 +4,39 @@ import { WEEKDAY_DICT } from "../utils";
 const Query = {
   async queryOpenday(parent, args, { db, pubsub }, info) {
     console.log("resolvers/Query/queryOpenday");
-    const opendays = await db.OpendayModel.find();
-    const weekdays = opendays.map((openday) => openday.weekday);
-    return weekdays;
+    return await db.OpendayModel.find();
   },
 
-  async queryUser(parent, { username }, { db, pubsub }, info) {
-    console.log("resolvers/Query/queryUser");
-    if (!username) {
-      throw new Error("Username cannot be empty");
-    }
-    const user = await db.UserModel.findOne({ username: username });
-    if (!user) {
-      throw new Error("User not exist");
-    }
-    return user;
+  async queryUserRecords(parent, { username }, { db, pubsub }, info) {
+    console.log("resolvers/Query/queryUserRecords");
+    // user exist
+    const user = await db.UserModel.findOne({
+      username: username,
+      identity: "patient",
+    });
+    if (!user) throw new Error("No such patient");
+
+    const records = await Promise.all(
+      user.records.map(async (recordId) => {
+        return await db.RecordModel.findById(recordId);
+      })
+    );
+
+    records.sort((a, b) => moment(a.date) - moment(b.date));
+    return records;
   },
 
   async queryAppointment(parent, { date }, { db, pubsub }, info) {
     console.log("resolvers/Query/queryAppointment");
-    // check opendays
-    const opendays = await db.OpendayModel.find();
-    const open_weekdays = opendays.map((openday) => openday.weekday);
-    if (!open_weekdays.includes(WEEKDAY_DICT[moment(date).weekday()]))
-      throw new Error("No service on " + WEEKDAY_DICT[moment(date).weekday()]);
 
-    const appoints = await db.AppointmentModel.find({ date: date });
-    return appoints;
+    // check opendays
+    const open = await db.OpendayModel.findOne({
+      weekday: WEEKDAY_DICT[moment(date).weekday()],
+    });
+    if (!open) return { doctor: "" };
+
+    const appointments = await db.AppointmentModel.find({ date: date });
+    return { doctor: open.doctor, number: appointments.length, appointments };
   },
 };
 

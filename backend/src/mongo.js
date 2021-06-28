@@ -1,9 +1,8 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-dotenv.config({ path: "../.env" });
+dotenv.config({ path: "./.env" });
 
 function connectMongo() {
-  console.log("process.env.MONGO_URL:", process.env.MONGO_URL);
   mongoose.connect(process.env.MONGO_URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
