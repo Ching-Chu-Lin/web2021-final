@@ -54,11 +54,11 @@ const UserControl = ({ user, setUser }) => {
     <div>
       {isLogin(user) ? (
         <div>
-          <div>{user.name}</div>
-          <Button type="primary" onClick={logout}>
+          <div style={{position: "absolute", width: "100%" }}>姓名：{user.name}</div>
+          <Button style={{position: "absolute", left: "33%", top: "6%"}} type="primary" onClick={logout}>
             登出
           </Button>
-          <Menu mode="inline">
+          <Menu mode="inline" style={{position: "absolute", left: "0%", top: "13%"}}>
             <SubMenu key="user-information" title="帳戶資訊">
               <Menu.Item
                 key="change-password"
