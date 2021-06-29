@@ -8,6 +8,7 @@ const Calendar = ({ user }) => {
       display: "flex",
       flexWrap: "wrap",
       justifyContent: "space-around",
+      borderRadius: "10px",
       overflow: "hidden",
       backgroundColor: theme.palette.background.paper,
       width: 1000,
@@ -20,15 +21,8 @@ const Calendar = ({ user }) => {
       width: "100%",
     },
     headerTile: {
-      backgroundColor: "rgb(220, 254, 209)",
-    },
-    passedDateTile: {
-      backgroundColor: "rgb(224, 224, 224)",
-      minHeight: 250,
-    },
-    futureDateTile: {
-      backgroundColor: "rgb(255, 254, 209)",
-      minHeight: 250,
+      display: "table",
+      background: 'linear-gradient(160deg, #D1E0FF 30%, #C1E0FF 90%)',
     },
   }));
   const classes = useStyles();
@@ -51,7 +45,7 @@ const Calendar = ({ user }) => {
       <GridList cellHeight={50} cols={7} className={classes.header}>
         {weekdayName.map((e) => (
           <GridListTile className={classes.headerTile}>
-            <span>{e}</span>
+            <span style={{position: "absolute",top: "10%", left: "0", right: "0", margin: "auto"}}>{e}</span>
           </GridListTile>
         ))}
       </GridList>

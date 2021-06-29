@@ -2,7 +2,6 @@ import { Form, Input, Slider } from "antd";
 
 const AppointmentForm = ({ form, initialValues, readOnly }) => {
   const { TextArea } = Input;
-
   return (
     <Form form={form} name="form_in_modal" initialValues={initialValues}>
       {console.log(initialValues)}
@@ -31,7 +30,6 @@ const AppointmentForm = ({ form, initialValues, readOnly }) => {
       >
         <Slider
           max={10}
-          step={0.1}
           marks={{ 0: "0", 10: "10" }}
           disabled={readOnly}
         />

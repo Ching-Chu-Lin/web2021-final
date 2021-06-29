@@ -10,28 +10,21 @@ const Daily = ({ user, date }) => {
     root: {
       display: "flex",
       flexWrap: "wrap",
-      justifyContent: "space-around",
+      justifyContent: "flex-end",
       overflow: "hidden",
       backgroundColor: theme.palette.background.paper,
       width: 1000,
     },
-    header: {
-      width: "100%",
-      height: 50,
-    },
     date: {
       width: "100%",
     },
-    headerTile: {
-      backgroundColor: "rgb(220, 254, 209)",
-    },
     passedDateTile: {
-      backgroundColor: "rgb(240, 240, 240)",
+      background: 'linear-gradient(135deg, #F0F0F0 30%, #E5E5E5 90%)',
       minHeight: 250,
       width: "14.2857%",
     },
     futureDateTile: {
-      backgroundColor: "rgb(255, 254, 209)",
+      background: 'linear-gradient(135deg, #FFFFE1 30%, #C8FAEA 90%)',
       minHeight: 250,
       width: "14.2857%",
     },
@@ -43,7 +36,7 @@ const Daily = ({ user, date }) => {
   const [modalVisible, setModalVisible] = useState(false);
 
   const [dailyData, setDailyData] = useState({
-    physiotherapyStudent: "怪醫黑傑克",
+    physiotherapyStudent: "黑傑克",
     availableTime: "18:00-20:00",
     numbers: 1,
     patients: [
@@ -66,31 +59,31 @@ const Daily = ({ user, date }) => {
 
   return thisDay < moment().startOf("day") ? (
     <GridListTile key={date} className={classes.passedDateTile}>
-      <p>{thisDay.format("MM/DD")}</p>
+      <p style={{position: "absolute",top: "5%", left: "0", right: "0", margin: "auto"}}>{thisDay.format("MM/DD")}</p>
     </GridListTile>
   ) : dailyData.availableTime === "" ? (
     <GridListTile key={date} className={classes.futureDateTile}>
-      <p>{thisDay.format("MM/DD")}</p>
-      <p style={{ color: "red" }}>本日無服務</p>
+      <p style={{position: "absolute",top: "5%", left: "0", right: "0", margin: "auto"}}>{thisDay.format("MM/DD")}</p>
+      <p>本日無服務</p>
     </GridListTile>
   ) : (
     <GridListTile key={date} className={classes.futureDateTile}>
       {/* {console.log(dailyData)} */}
-      <p>{thisDay.format("MM/DD")}</p>
-      <p>物治學生：{dailyData.physiotherapyStudent}</p>
-      <p>服務時間：{dailyData.availableTime}</p>
-      <p>目前預約人數：{dailyData.numbers}</p>
+      <p style={{position: "absolute",top: "5%", left: "0", right: "0", margin: "auto"}}>{thisDay.format("MM/DD")}</p>
+      <p style={{position: "absolute",top: "20%", left: "0", right: "0", margin: "auto"}}>物治學生：{dailyData.physiotherapyStudent}</p>
+      <p style={{position: "absolute",top: "40%", left: "0", right: "0", margin: "auto"}}>服務時間：{dailyData.availableTime}</p>
+      <p style={{position: "absolute",top: "80%", left: "0", right: "0", margin: "auto"}}>目前預約人數：{dailyData.numbers}</p>
       {user.identity === "team" ? (
         dailyData.patients ? (
           <>
             <Button
               type="primary"
-              style={{ background: "rgb(7, 181, 59)" }}
+              style={{ background: "rgb(7, 181, 59)" , position: "absolute",top: "60%", left: "0", right: "0", margin: "auto"}}
               onClick={() => {
                 setModalVisible(true);
               }}
             >
-              <span className="material-icons">done</span>
+              <span className="material-icons" >done</span>
               已預約
             </Button>
             {console.log(dailyData.patients[0].appointment)}
@@ -124,6 +117,7 @@ const Daily = ({ user, date }) => {
           <>
             <Button
               type="primary"
+              style={{position: "absolute",top: "60%", left: "0", right: "0", margin: "auto"}}
               onClick={() => {
                 setModalVisible(true);
               }}
@@ -153,6 +147,7 @@ const Daily = ({ user, date }) => {
         <>
           <Button
             type="primary"
+            style={{position: "absolute",top: "60%", left: "0", right: "0", margin: "auto"}}
             onClick={() => {
               setModalVisible(true);
             }}
@@ -163,16 +158,6 @@ const Daily = ({ user, date }) => {
             visible={modalVisible}
             mode="view"
             patients={dailyData.patients || []}
-            // onCreate={(appointment) => {
-            //   makeAppointment(appointment);
-            //   setDailyData((oldDailyData) => ({
-            //     ...oldDailyData,
-            //     numbers: oldDailyData.numbers + 1,
-            //     patients: [{ name: user.name, appointment }],
-            //   }));
-            //   setModalVisible(false);
-            //   console.log(dailyData);
-            // }}
             onCancel={() => {
               setModalVisible(false);
             }}
