@@ -33,7 +33,7 @@ const RecordForm = ({ form, initialValues, readOnly }) => {
       >
         <Slider
           max={10}
-          step={0.1}
+          step={1}
           marks={{ 0: "0", 10: "10" }}
           disabled={true}
         />

@@ -1,12 +1,15 @@
 import { Modal, Layout, Menu, Form, Button } from "antd";
 import { useState } from "react";
-import AppointmentForm from "../forms/AppointmentForm";
+import RecordForm from "../forms/RecordForm";
 
-const PatientsModal = ({ visible, mode, patients, onCreate, onCancel }) => {
+const PatientsModal = ({ visible, mode, appointments, onCreate, onCancel }) => {
   const { Sider, Content } = Layout;
   const [form] = Form.useForm();
 
-  // const [currentAppointment, setCurrentAppointment] = useState({});
+  const findRecord = (appointment) => {
+    const record = null; // TODO: ask backend
+    if (!record) return { ...appointment, injury: "", treatment: "" };
+  };
 
   const isReadOnly = (mode) => {
     switch (mode) {
@@ -23,7 +26,6 @@ const PatientsModal = ({ visible, mode, patients, onCreate, onCancel }) => {
 
   const onOk = () => {
     form.validateFields().then((values) => {
-      form.resetFields();
       console.log(values);
       onCreate(values);
     });
@@ -45,6 +47,9 @@ const PatientsModal = ({ visible, mode, patients, onCreate, onCancel }) => {
         ];
       case "modify":
         return [
+          <Button key="create" type="primary" onClick={onOk}>
+            儲存病歷
+          </Button>,
           <Button key="close" onClick={onCancel}>
             關閉
           </Button>,
@@ -57,105 +62,33 @@ const PatientsModal = ({ visible, mode, patients, onCreate, onCancel }) => {
   return (
     <Modal
       visible={visible}
-      title="預約"
+      title="本日病人"
       footer={createFooter(mode)}
       onCancel={onCancel}
       onOk={onOk}
     >
-      {console.log(patients)}
       <Layout>
         <Sider theme="light">
           <Menu mode="inline">
-            {patients.map((patient) => {
-              console.log(patient);
+            {appointments.map((appointment) => {
               return (
                 <Menu.Item
-                  key={patient.name}
+                  key={appointment.patient.username}
                   onClick={() => {
-                    form.setFieldsValue(patient.appointment);
+                    const record = findRecord(appointment);
+                    form.setFieldsValue(record);
                   }}
                 >
-                  {patient.name}
+                  {appointment.patient.username}
                 </Menu.Item>
               );
             })}
           </Menu>
         </Sider>
         <Content>
-          <AppointmentForm
-            form={form}
-            // initialValues={currentAppointment}
-            readOnly={readOnly}
-          />
+          <RecordForm form={form} readOnly={readOnly} />
         </Content>
       </Layout>
-      {/* <Form form={form} name="form_in_modal" initialValues={record || {}}>
-        <Form.Item
-          label={<span style={{ fontWeight: "bold" }}>校隊評估狀況</span>}
-        ></Form.Item>
-        <Form.Item
-          name="part"
-          label="受傷部位"
-          rules={[
-            {
-              required: true,
-              message: "請輸入受傷部位",
-            },
-          ]}
-        >
-          <Input readOnly={true} />
-        </Form.Item>
-
-        <Form.Item
-          name="level"
-          label="疼痛程度"
-          rules={[
-            {
-              required: true,
-              message: "請選擇疼痛程度",
-            },
-          ]}
-        >
-          <Slider
-            max={10}
-            step={0.1}
-            marks={{ 0: "0", 10: "10" }}
-            disabled={true}
-          />
-        </Form.Item>
-        <Form.Item name="description" label="簡單描述">
-          <TextArea readOnly={true} autoSize />
-        </Form.Item>
-
-        <Form.Item
-          label={<span style={{ fontWeight: "bold" }}>物治處置</span>}
-        ></Form.Item>
-        <Form.Item
-          name="injury"
-          label="受傷狀況"
-          rules={[
-            {
-              required: true,
-              message: "請輸入受傷狀況",
-            },
-          ]}
-        >
-          <TextArea readOnly={readOnly} autoSize />
-        </Form.Item>
-
-        <Form.Item
-          name="treatment"
-          label="治療方法"
-          rules={[
-            {
-              required: true,
-              message: "請輸入治療方法",
-            },
-          ]}
-        >
-          <TextArea readOnly={readOnly} autoSize />
-        </Form.Item>
-      </Form> */}
     </Modal>
   );
 };
