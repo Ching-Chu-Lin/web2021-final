@@ -14,11 +14,22 @@ const LoginModal = ({ visible, onCreate, onCancel }) => {
     localStorage.setItem(SAVED_USER, JSON.stringify(value));
   };
 
+  const forgetLogin = (value) => {
+    if (
+      value.username === loginInfo.username &&
+      value.identity === loginInfo.identity
+    ) {
+      setLoginInfo({});
+      localStorage.removeItem(SAVED_USER);
+    }
+  };
+
   const onOk = () => {
     form.validateFields().then((value) => {
-      const { name, password, identity, remember } = value;
+      const { username, password, identity, remember } = value;
       if (remember) rememberLogin(value);
-      onCreate({ name, password, identity });
+      else forgetLogin(value);
+      onCreate({ username, password, identity });
     });
     // .catch((e) => {
     //   displayStatus({
@@ -56,7 +67,7 @@ const LoginModal = ({ visible, onCreate, onCancel }) => {
     >
       <Form form={form} name="form_in_modal" initialValues={loginInfo || {}}>
         <Form.Item
-          name="name"
+          name="username"
           label="帳號"
           rules={[
             {
@@ -91,8 +102,8 @@ const LoginModal = ({ visible, onCreate, onCancel }) => {
           ]}
         >
           <Radio.Group>
-            <Radio value="team">校隊學生</Radio>
-            <Radio value="physiotherapy">物治學生</Radio>
+            <Radio value="patient">校隊學生</Radio>
+            <Radio value="doctor">物治學生</Radio>
           </Radio.Group>
         </Form.Item>
         <Form.Item name="remember" valuePropName="checked">
