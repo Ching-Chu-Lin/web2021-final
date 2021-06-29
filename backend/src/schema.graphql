@@ -1,6 +1,14 @@
 type Query {
-  queryUserRecords(username: String!): [Record!]
-  queryAppointment(date: String!): DailyAppointmentReturn!
+  # Record
+  queryUserRecords(patientName: String!, auth: UserInput!): [Record!]
+  queryUserRecordsByDate(
+    patientName: String!
+    date: String!
+    auth: UserInput!
+  ): Record
+  # Appointment
+  queryAppointment(date: String!, auth: UserInput): DailyAppointmentReturn!
+  # Openday
   queryOpenday: [Openday!]
 }
 
@@ -12,10 +20,13 @@ type Mutation {
   updateUserUsername(data: UserInput!, newUsername: String!): User!
   updateUserPassword(data: UserInput!, newPassword: String!): User!
   # Appointment
-  createAppointment(data: CreatAppointmentInput!): Appointment! # create / update
-  deleteAppointment(username: String!, date: String!): Appointment!
+  createAppointment(
+    data: CreatAppointmentInput!
+    auth: UserInput!
+  ): Appointment! # create / update
+  deleteAppointment(date: String!, auth: UserInput!): Appointment!
   # Record
-  createRecord(data: CreateRecordInput!): Record! # create / update
+  createRecord(data: CreateRecordInput!, auth: UserInput!): Record! # create / update
   # Openday
   createOpenday(data: OpendayInput!): Openday!
   deleteOpenday(weekday: Weekday!): Openday!
@@ -56,10 +67,10 @@ type User {
 }
 
 input CreateRecordInput {
-  patient: String! #username
+  patientName: String! #username
   date: String!
   part: String!
-  level: String!
+  level: Int!
   description: String
   injury: String!
   treatment: String!
@@ -69,7 +80,7 @@ type Record {
   id: ID!
   date: String!
   part: String!
-  level: String!
+  level: Int!
   description: String
   injury: String!
   treatment: String!
@@ -77,9 +88,8 @@ type Record {
 
 input CreatAppointmentInput {
   date: String!
-  patient: String! #username
   part: String!
-  level: String!
+  level: Int!
   description: String
 }
 
@@ -88,7 +98,7 @@ type Appointment {
   date: String!
   patient: User!
   part: String!
-  level: String!
+  level: Int!
   description: String
 }
 

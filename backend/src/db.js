@@ -5,7 +5,7 @@ const appointmentSchema = new Schema({
   date: { type: String, required: true },
   patient: { type: mongoose.Types.ObjectId, ref: "User" },
   part: { type: String, required: true },
-  level: { type: String, required: true },
+  level: { type: Number, required: true },
   description: { type: String },
 });
 
@@ -19,7 +19,7 @@ const userSchema = new Schema({
 const recordSchema = new Schema({
   date: { type: String, required: true },
   part: { type: String, required: true },
-  level: { type: String, required: true },
+  level: { type: Number, required: true },
   description: { type: String },
   injury: { type: String, required: true },
   treatment: { type: String, required: true },

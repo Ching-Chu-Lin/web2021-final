@@ -2,7 +2,7 @@ import uuidv4 from "uuid/v4";
 import moment from "moment";
 import bcrypt from "bcrypt";
 import { ObjectId } from "mongodb";
-import { WEEKDAY_DICT, saltRounds } from "../utils";
+import { WEEKDAY_DICT, saltRounds, checkUserIdentity } from "../utils";
 
 const Mutation = {
   /**
@@ -33,31 +33,12 @@ const Mutation = {
   },
   async login(parent, { data: args }, { db }, info) {
     console.log("resolvers/Mutation/login");
-    // user exist
-    const user = await db.UserModel.findOne({
-      username: args.username,
-      identity: args.identity,
-    });
-    if (!user) throw new Error("No such user");
-
-    // validate password
-    const valid = await bcrypt.compare(args.password, user.password);
-    if (!valid) throw new Error("Invalid password");
-
+    const user = await checkUserIdentity(args, db);
     return user;
   },
   async deleteUser(parent, { data: args }, { db, pubsub }, info) {
     console.log("resolvers/Mutation/deleteUser");
-    // user exist
-    const user = await db.UserModel.findOne({
-      username: args.username,
-      identity: args.identity,
-    });
-    if (!user) throw new Error("User not exist");
-
-    // validate password
-    const valid = await bcrypt.compare(args.password, user.password);
-    if (!valid) throw new Error("Invalid password");
+    const user = await checkUserIdentity(args, db);
 
     // delete
     user.records.forEach(async (recordId) => {
@@ -80,16 +61,7 @@ const Mutation = {
     console.log("resolvers/Mutation/updateUserUsername");
     // empty username
     if (!newUsername) throw new Error("Username cannot be empty");
-    // user exist
-    const user = await db.UserModel.findOne({
-      username: args.username,
-      identity: args.identity,
-    });
-    if (!user) throw new Error("User not exist");
-
-    // validate password
-    const valid = await bcrypt.compare(args.password, user.password);
-    if (!valid) throw new Error("Invalid password");
+    const user = await checkUserIdentity(args, db);
 
     return await db.UserModel.findOneAndUpdate(
       {
@@ -104,16 +76,7 @@ const Mutation = {
     console.log("resolvers/Mutation/updateUserPassword");
     // empty password
     if (!newPassword) throw new Error("Password cannot be empty");
-    // user exist
-    const user = await db.UserModel.findOne({
-      username: args.username,
-      identity: args.identity,
-    });
-    if (!user) throw new Error("User not exist");
-
-    // validate password
-    const valid = await bcrypt.compare(args.password, user.password);
-    if (!valid) throw new Error("Invalid password");
+    const user = await checkUserIdentity(args, db);
 
     // sha256 hash password
     const password = await bcrypt.hash(newPassword, saltRounds);
@@ -130,7 +93,7 @@ const Mutation = {
   /**
    * Appointment
    */
-  async createAppointment(parent, { data: args }, { db, pubsub }, info) {
+  async createAppointment(parent, { data: args, auth }, { db, pubsub }, info) {
     console.log("resolvers/Mutation/createAppointment");
 
     // check opendays
@@ -139,13 +102,9 @@ const Mutation = {
     });
     if (!open) throw new Error("No service today");
 
-    // user exist and "patient"
-    const user = await db.UserModel.findOne({
-      username: args.patient,
-      identity: "patient",
-    });
-    if (!user)
-      throw new Error("Patient with name" + args.patient + " not exist.");
+    const user = await checkUserIdentity(auth, db);
+    if (user.identity !== "patient")
+      throw new Error("Only patients can make / update appointment");
 
     // if exist appointment, then update
     const appoint = await db.AppointmentModel.findOneAndUpdate(
@@ -165,14 +124,11 @@ const Mutation = {
 
     return appoint;
   },
-  async deleteAppointment(parent, { username, date }, { db, pubsub }, info) {
+  async deleteAppointment(parent, { date, auth }, { db, pubsub }, info) {
     console.log("resolvers/Mutation/deleteAppointment");
-    // user exist and "patient"
-    const user = await db.UserModel.findOne({
-      username: username,
-      identity: "patient",
-    });
-    if (!user) throw new Error("Patient with name" + username + " not exist.");
+    const user = await checkUserIdentity(auth, db);
+    if (user.identity !== "patient")
+      throw new Error("Only patients can delete one's appointment");
 
     const appoint = await db.AppointmentModel.findOne({ patient: user, date });
     if (!appoint) throw new Error("Appointment not exist");
@@ -184,20 +140,24 @@ const Mutation = {
    * Record
    */
 
-  async createRecord(parent, { data: args }, { db, pubsub }, info) {
+  async createRecord(parent, { data: args, auth }, { db, pubsub }, info) {
+    const user = await checkUserIdentity(auth, db);
+    if (user.identity !== "doctor")
+      throw new Error("Only patients can create / update record");
+
     // patient exist
-    const user = await db.UserModel.findOne({
-      username: args.patient,
+    const patient = await db.UserModel.findOne({
+      username: args.patientName,
       identity: "patient",
     });
-    if (!user)
-      throw new Error("Patient with name" + args.patient + " not exist.");
+    if (!patient)
+      throw new Error("Patient with name" + args.patient + " not exist");
 
-    const { patient, ...recordData } = args;
+    const { patientName, ...recordData } = args;
 
     // if exist record, then update
     const records = await Promise.all(
-      user.records.map(async (recordId) => {
+      patient.records.map(async (recordId) => {
         return await db.RecordModel.findById(recordId);
       })
     );
@@ -210,9 +170,9 @@ const Mutation = {
         ...recordData,
       }).save();
 
-      // push to user
-      user.records.push(record);
-      await user.save();
+      // push to patient
+      patient.records.push(record);
+      await patient.save();
       return record;
     } else {
       // update Record

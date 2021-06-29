@@ -1,5 +1,5 @@
 import moment from "moment";
-import { WEEKDAY_DICT } from "../utils";
+import { WEEKDAY_DICT, checkUserIdentity } from "../utils";
 
 const Query = {
   async queryOpenday(parent, args, { db, pubsub }, info) {
@@ -7,17 +7,24 @@ const Query = {
     return await db.OpendayModel.find();
   },
 
-  async queryUserRecords(parent, { username }, { db, pubsub }, info) {
+  async queryUserRecords(parent, { patientName, auth }, { db, pubsub }, info) {
     console.log("resolvers/Query/queryUserRecords");
-    // user exist
-    const user = await db.UserModel.findOne({
-      username: username,
+
+    const user = await checkUserIdentity(auth, db);
+
+    // doctor & oneself
+    if (user.identity !== "doctor" && user.username !== patientName)
+      throw new Error("Only doctor and patient oneself can see one's record");
+
+    // patient exist
+    const patient = await db.UserModel.findOne({
+      username: patientName,
       identity: "patient",
     });
-    if (!user) throw new Error("No such patient");
+    if (!patient) throw new Error("No such patient");
 
     const records = await Promise.all(
-      user.records.map(async (recordId) => {
+      patient.records.map(async (recordId) => {
         return await db.RecordModel.findById(recordId);
       })
     );
@@ -26,7 +33,38 @@ const Query = {
     return records;
   },
 
-  async queryAppointment(parent, { date }, { db, pubsub }, info) {
+  async queryUserRecordsByDate(
+    parent,
+    { patientName, date, auth },
+    { db, pubsub },
+    info
+  ) {
+    console.log("resolvers/Query.js queryUserRecordsByDate");
+
+    const user = await checkUserIdentity(auth, db);
+
+    // doctor & oneself
+    if (user.identity !== "doctor" && user.username !== patientName)
+      throw new Error("Only doctor and patient oneself can see one's record");
+
+    // patient exist
+    const patient = await db.UserModel.findOne({
+      username: patientName,
+      identity: "patient",
+    });
+    if (!patient) throw new Error("No such patient");
+
+    const records = await Promise.all(
+      patient.records.map(async (recordId) => {
+        return await db.RecordModel.findById(recordId);
+      })
+    );
+
+    const r = records.find((r) => r.date === date);
+    return r || null;
+  },
+
+  async queryAppointment(parent, { date, auth }, { db, pubsub }, info) {
     console.log("resolvers/Query/queryAppointment");
 
     // check opendays
@@ -36,6 +74,28 @@ const Query = {
     if (!open) return { doctor: "" };
 
     const appointments = await db.AppointmentModel.find({ date: date });
+
+    // not logged in
+    if (!auth)
+      return {
+        doctor: open.doctor,
+        number: appointments.length,
+        appointments: [],
+      };
+
+    const user = await checkUserIdentity(auth, db);
+
+    if (user.identity === "patient") {
+      return {
+        doctor: open.doctor,
+        number: appointments.length,
+        appointments: appointments.filter((appoint) =>
+          appoint.patient.equals(user._id)
+        ),
+      };
+    }
+
+    // doctor
     return { doctor: open.doctor, number: appointments.length, appointments };
   },
 };
