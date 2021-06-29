@@ -29,6 +29,7 @@ const UserControl = ({ user, setUser }) => {
   const [currentRecord, setCurrentRecord] = useState({});
 
   const isLogin = (user) => {
+    if (!user) return false;
     if (!user.username || user.username === "") return false;
     if (!user.identity || user.identity === "") return false;
     return true;
@@ -54,11 +55,20 @@ const UserControl = ({ user, setUser }) => {
     <div>
       {isLogin(user) ? (
         <div>
-          <div style={{position: "absolute", width: "100%" }}>姓名：{user.username}</div>
-          <Button style={{position: "absolute", left: "33%", top: "6%"}} type="primary" onClick={logout}>
+          <div style={{ position: "absolute", width: "100%" }}>
+            姓名：{user.username}
+          </div>
+          <Button
+            style={{ position: "absolute", left: "33%", top: "6%" }}
+            type="primary"
+            onClick={logout}
+          >
             登出
           </Button>
-          <Menu mode="inline" style={{position: "absolute", left: "0%", top: "13%"}}>
+          <Menu
+            mode="inline"
+            style={{ position: "absolute", left: "0%", top: "13%" }}
+          >
             <SubMenu key="user-information" title="帳戶資訊">
               <Menu.Item
                 key="change-password"
