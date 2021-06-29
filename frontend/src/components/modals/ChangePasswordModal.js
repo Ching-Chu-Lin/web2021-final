@@ -6,6 +6,7 @@ const ChangePasswordModal = ({ visible, user, onCreate, onCancel }) => {
 
   const onOk = () => {
     form.validateFields().then((value) => {
+      form.resetFields(["oldPassword", "newPassword"]);
       onCreate(value);
     });
     // .catch((e) => {
@@ -38,18 +39,9 @@ const ChangePasswordModal = ({ visible, user, onCreate, onCancel }) => {
       <Form
         form={form}
         name="form_in_modal"
-        initialValues={{ name: user.name }}
+        initialValues={{ username: user.username }}
       >
-        <Form.Item
-          name="name"
-          label="帳號"
-          rules={[
-            {
-              required: true,
-              message: "請輸入帳號",
-            },
-          ]}
-        >
+        <Form.Item name="username" label="帳號">
           <Input readOnly={true} />
         </Form.Item>
 

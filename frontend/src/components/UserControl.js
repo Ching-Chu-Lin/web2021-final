@@ -17,8 +17,8 @@ const UserControl = ({ user, setUser }) => {
     {
       date: "2021-06-20",
       part: "頭",
-      level: 8.7,
-      description: "智商不足",
+      level: 8,
+      description: "智商不足", // not must
       injury: "沒救了",
       treatment: "皮諾可，這個直接電死",
     },
@@ -29,7 +29,7 @@ const UserControl = ({ user, setUser }) => {
   const [currentRecord, setCurrentRecord] = useState({});
 
   const isLogin = (user) => {
-    if (!user.name || user.name === "") return false;
+    if (!user.username || user.username === "") return false;
     if (!user.identity || user.identity === "") return false;
     return true;
   };
@@ -54,7 +54,7 @@ const UserControl = ({ user, setUser }) => {
     <div>
       {isLogin(user) ? (
         <div>
-          <div>{user.name}</div>
+          <div>{user.username}</div>
           <Button type="primary" onClick={logout}>
             登出
           </Button>
@@ -67,7 +67,7 @@ const UserControl = ({ user, setUser }) => {
                 更改密碼
               </Menu.Item>
             </SubMenu>
-            {user.identity === "team" && (
+            {user.identity === "patient" && (
               <SubMenu
                 key="my-record"
                 title="我的病歷"
@@ -77,7 +77,7 @@ const UserControl = ({ user, setUser }) => {
               >
                 {records.map((record) => (
                   <Menu.Item
-                    key="record.date"
+                    key={record.date}
                     onClick={() => {
                       setCurrentRecord(record);
                       setRecordModalVisible(true);

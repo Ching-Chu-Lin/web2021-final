@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useQuery, useMutation } from "@apollo/react-hooks";
 import moment from "moment";
 import { makeStyles, GridListTile } from "@material-ui/core";
 import { Button } from "antd";
@@ -43,13 +44,26 @@ const Daily = ({ user, date }) => {
   const [modalVisible, setModalVisible] = useState(false);
 
   const [dailyData, setDailyData] = useState({
-    physiotherapyStudent: "怪醫黑傑克",
-    availableTime: "18:00-20:00",
-    numbers: 1,
-    patients: [
+    doctor: "怪醫黑傑克", // doctor: ""
+    numbers: 2,
+    appointments: [
       {
-        name: "智障",
-        appointment: { part: "頭", level: 8.7, description: "智商不足" },
+        date: "2021-06-29",
+        patient: {
+          username: "智障",
+        },
+        part: "頭",
+        level: 8,
+        description: "智商不足",
+      },
+      {
+        date: "2021-06-29",
+        patient: {
+          username: "智障2",
+        },
+        part: "腦",
+        level: 7,
+        description: "智商不足",
       },
     ],
   });
@@ -64,24 +78,28 @@ const Daily = ({ user, date }) => {
     // TODO: ask backend
   };
 
+  const saveRecord = (record) => {
+    console.log(record);
+    // TODO: ask backend
+  };
+
   return thisDay < moment().startOf("day") ? (
     <GridListTile key={date} className={classes.passedDateTile}>
       <p>{thisDay.format("MM/DD")}</p>
     </GridListTile>
-  ) : dailyData.availableTime === "" ? (
+  ) : dailyData.doctor === "" ? (
     <GridListTile key={date} className={classes.futureDateTile}>
       <p>{thisDay.format("MM/DD")}</p>
       <p style={{ color: "red" }}>本日無服務</p>
     </GridListTile>
   ) : (
     <GridListTile key={date} className={classes.futureDateTile}>
-      {/* {console.log(dailyData)} */}
       <p>{thisDay.format("MM/DD")}</p>
-      <p>物治學生：{dailyData.physiotherapyStudent}</p>
-      <p>服務時間：{dailyData.availableTime}</p>
+      <p>物治學生：{dailyData.doctor}</p>
       <p>目前預約人數：{dailyData.numbers}</p>
-      {user.identity === "team" ? (
-        dailyData.patients ? (
+      {user.identity === "patient" ? (
+        dailyData.appointments.length > 0 &&
+        dailyData.appointments[0].patient.username === user.username ? (
           <>
             <Button
               type="primary"
@@ -93,16 +111,18 @@ const Daily = ({ user, date }) => {
               <span className="material-icons">done</span>
               已預約
             </Button>
-            {console.log(dailyData.patients[0].appointment)}
+            {console.log(dailyData.appointments[0])}
             <AppointmentModal
               visible={modalVisible}
               mode="modify"
-              appointment={dailyData.patients[0].appointment}
+              appointment={dailyData.appointments[0]}
               onCreate={(appointment) => {
                 makeAppointment(appointment);
                 setDailyData((oldDailyData) => ({
                   ...oldDailyData,
-                  patients: [{ name: user.name, appointment }],
+                  appointments: [
+                    { ...appointment, patient: { username: user.username } },
+                  ],
                 }));
                 setModalVisible(false);
               }}
@@ -114,7 +134,7 @@ const Daily = ({ user, date }) => {
                 setDailyData((oldDailyData) => ({
                   ...oldDailyData,
                   numbers: oldDailyData.numbers - 1,
-                  patients: null,
+                  appointments: [],
                 }));
                 setModalVisible(false);
               }}
@@ -138,7 +158,9 @@ const Daily = ({ user, date }) => {
                 setDailyData((oldDailyData) => ({
                   ...oldDailyData,
                   numbers: oldDailyData.numbers + 1,
-                  patients: [{ name: user.name, appointment }],
+                  appointments: [
+                    { patient: { username: user.username }, ...appointment },
+                  ],
                 }));
                 setModalVisible(false);
                 console.log(dailyData);
@@ -149,7 +171,7 @@ const Daily = ({ user, date }) => {
             />
           </>
         )
-      ) : user.identity === "physiotherapy" ? (
+      ) : user.identity === "doctor" ? (
         <>
           <Button
             type="primary"
@@ -161,18 +183,12 @@ const Daily = ({ user, date }) => {
           </Button>
           <PatientsModal
             visible={modalVisible}
-            mode="view"
-            patients={dailyData.patients || []}
-            // onCreate={(appointment) => {
-            //   makeAppointment(appointment);
-            //   setDailyData((oldDailyData) => ({
-            //     ...oldDailyData,
-            //     numbers: oldDailyData.numbers + 1,
-            //     patients: [{ name: user.name, appointment }],
-            //   }));
-            //   setModalVisible(false);
-            //   console.log(dailyData);
-            // }}
+            mode="modify"
+            appointments={dailyData.appointments || []}
+            onCreate={(record) => {
+              saveRecord(record);
+              // setModalVisible(false);
+            }}
             onCancel={() => {
               setModalVisible(false);
             }}
