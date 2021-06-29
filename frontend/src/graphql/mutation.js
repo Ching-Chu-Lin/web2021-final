@@ -4,7 +4,6 @@ export const LOGIN_MUTATION = gql`
   mutation login($data: UserInput!) {
     login(data: $data) {
       username
-      password
       identity
     }
   }
@@ -14,7 +13,6 @@ export const CHANGE_PASSWORD_MUTATION = gql`
   mutation updateUserPassword($data: UserInput!, $newPassword: String!) {
     updateUserPassword(data: $data, newPassword: $newPassword) {
       username
-      password
       identity
     }
   }

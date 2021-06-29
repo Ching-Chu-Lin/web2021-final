@@ -5,7 +5,11 @@ import { makeStyles, GridListTile } from "@material-ui/core";
 import { Button } from "antd";
 import AppointmentModal from "./modals/AppointmentModal";
 import PatientsModal from "./modals/PatientsModal";
-import { DAILY_USER_RECORD_QUERY, APPOINTMENT_QUERY } from "../graphql";
+import {
+  APPOINTMENT_QUERY,
+  CREATE_APPOINTMENT_MUTATION,
+  DELETE_APPOINTMENT_MUTATION,
+} from "../graphql";
 
 const Daily = ({ user, date }) => {
   const useStyles = makeStyles((theme) => ({
@@ -43,23 +47,12 @@ const Daily = ({ user, date }) => {
     data: { queryAppointment: dailyData } = {},
     subscribeToMore,
   } = useQuery(APPOINTMENT_QUERY, {
-    variables: { date, auth: null },
+    variables: { date, auth: user },
   });
 
-  const makeAppointment = (appointment) => {
-    console.log({ user, date, appointment });
-    // TODO: ask backend
-  };
+  const [makeAppointment] = useMutation(CREATE_APPOINTMENT_MUTATION);
 
-  const deleteAppointment = () => {
-    console.log("delete: ", { user, date });
-    // TODO: ask backend
-  };
-
-  const saveRecord = (record) => {
-    console.log(record);
-    // TODO: ask backend
-  };
+  const [deleteAppointment] = useMutation(DELETE_APPOINTMENT_MUTATION);
 
   return thisDay < moment().startOf("day") ? (
     <GridListTile key={date} className={classes.passedDateTile}>
@@ -138,7 +131,7 @@ const Daily = ({ user, date }) => {
         目前預約人數：{dailyData.number}
       </p>
       {!user ? (
-        <>{console.log(dailyData)}</>
+        <></>
       ) : user.identity === "patient" ? (
         dailyData.appointments.length > 0 &&
         dailyData.appointments[0].patient.username === user.username ? (
@@ -160,31 +153,21 @@ const Daily = ({ user, date }) => {
               <span className="material-icons">done</span>
               已預約
             </Button>
-            {console.log(dailyData.appointments[0])}
             <AppointmentModal
               visible={modalVisible}
               mode="modify"
               appointment={dailyData.appointments[0]}
-              onCreate={(appointment) => {
-                makeAppointment(appointment);
-                // setDailyData((oldDailyData) => ({
-                //   ...oldDailyData,
-                //   appointments: [
-                //     { ...appointment, patient: { username: user.username } },
-                //   ],
-                // }));
+              onCreate={async (appointment) => {
+                const appointmentReturn = await makeAppointment({
+                  variables: { data: { date, ...appointment }, auth: user },
+                });
                 setModalVisible(false);
               }}
               onCancel={() => {
                 setModalVisible(false);
               }}
-              onDelete={() => {
-                deleteAppointment();
-                // setDailyData((oldDailyData) => ({
-                //   ...oldDailyData,
-                //   numbers: oldDailyData.numbers - 1,
-                //   appointments: [],
-                // }));
+              onDelete={async () => {
+                await deleteAppointment({ variables: { date, auth: user } });
                 setModalVisible(false);
               }}
             />
@@ -209,17 +192,11 @@ const Daily = ({ user, date }) => {
             <AppointmentModal
               visible={modalVisible}
               mode="create"
-              onCreate={(appointment) => {
-                makeAppointment(appointment);
-                // setDailyData((oldDailyData) => ({
-                //   ...oldDailyData,
-                //   numbers: oldDailyData.numbers + 1,
-                //   appointments: [
-                //     { patient: { username: user.username }, ...appointment },
-                //   ],
-                // }));
+              onCreate={async (appointment) => {
+                const appointmentReturn = await makeAppointment({
+                  variables: { data: { date, ...appointment }, auth: user },
+                });
                 setModalVisible(false);
-                console.log(dailyData);
               }}
               onCancel={() => {
                 setModalVisible(false);
@@ -247,14 +224,17 @@ const Daily = ({ user, date }) => {
           <PatientsModal
             visible={modalVisible}
             mode="modify"
+            date={date}
             appointments={dailyData.appointments || []}
-            onCreate={(record) => {
-              saveRecord(record);
-              // setModalVisible(false);
-            }}
+            // onCreate={async (record) => {
+            //   await saveRecord({
+            //     variables: { data: { date, ...record }, auth: user },
+            //   });
+            // }}
             onCancel={() => {
               setModalVisible(false);
             }}
+            user={user} // only for authentication
           />
         </>
       ) : (

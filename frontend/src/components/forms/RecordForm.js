@@ -4,7 +4,7 @@ const RecordForm = ({ form, initialValues, readOnly }) => {
   const { TextArea } = Input;
 
   return (
-    <Form form={form} name="form_in_modal" initialValues={initialValues} >
+    <Form form={form} name="form_in_modal" initialValues={initialValues}>
       <Form.Item
         label={<span style={{ fontWeight: "bold" }}>校隊評估狀況</span>}
       ></Form.Item>
@@ -31,12 +31,7 @@ const RecordForm = ({ form, initialValues, readOnly }) => {
           },
         ]}
       >
-        <Slider
-          max={10}
-          step={1}
-          marks={{ 0: "0", 10: "10" }}
-          disabled={true}
-        />
+        <Slider max={10} marks={{ 0: "0", 10: "10" }} disabled={true} />
       </Form.Item>
       <Form.Item name="description" label="簡單描述">
         <TextArea readOnly={true} autoSize />

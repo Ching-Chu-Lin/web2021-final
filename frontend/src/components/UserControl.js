@@ -1,8 +1,14 @@
 import { Button, Menu } from "antd";
 import { useState } from "react";
+import { useQuery, useMutation } from "@apollo/react-hooks";
 import LoginModal from "./modals/LoginModal";
 import ChangePasswordModal from "./modals/ChangePasswordModal";
 import RecordModal from "./modals/RecordModal";
+import {
+  LOGIN_MUTATION,
+  CHANGE_PASSWORD_MUTATION,
+  USER_RECORDS_QUERY,
+} from "../graphql";
 
 const UserControl = ({ user, setUser }) => {
   const { SubMenu } = Menu;
@@ -13,18 +19,25 @@ const UserControl = ({ user, setUser }) => {
 
   const [recordModalVisible, setRecordModalVisible] = useState(false);
 
-  const [records, setRecords] = useState([
-    {
-      date: "2021-06-20",
-      part: "頭",
-      level: 8,
-      description: "智商不足", // not must
-      injury: "沒救了",
-      treatment: "皮諾可，這個直接電死",
-    },
-  ]);
+  // const [records, setRecords] = useState([
+  //   {
+  //     date: "2021-06-20",
+  //     part: "頭",
+  //     level: 8,
+  //     description: "智商不足", // not must
+  //     injury: "沒救了",
+  //     treatment: "皮諾可，這個直接電死",
+  //   },
+  // ]);
 
-  // TODO: receive new records from subscription
+  const {
+    loading,
+    error,
+    data: { queryUserRecords: records } = {},
+    subscribeToMore,
+  } = useQuery(USER_RECORDS_QUERY, {
+    variables: { patientName: user ? user.username : "", auth: user },
+  });
 
   const [currentRecord, setCurrentRecord] = useState({});
 
@@ -35,20 +48,12 @@ const UserControl = ({ user, setUser }) => {
     return true;
   };
 
-  const login = (user) => {
-    console.log(user);
-    // TODO: ask backend
-    setUser(user);
-  };
+  const [login] = useMutation(LOGIN_MUTATION);
+
+  const [changePassword] = useMutation(CHANGE_PASSWORD_MUTATION);
 
   const logout = () => {
-    setUser({});
-  };
-
-  const changePassword = (info) => {
-    console.log(info);
-    // TODO: ask backend
-    logout();
+    setUser(null);
   };
 
   return (
@@ -85,26 +90,30 @@ const UserControl = ({ user, setUser }) => {
                   console.log("fetch records");
                 }}
               >
-                {records.map((record) => (
-                  <Menu.Item
-                    key={record.date}
-                    onClick={() => {
-                      setCurrentRecord(record);
-                      setRecordModalVisible(true);
-                    }}
-                  >
-                    {record.date}
-                  </Menu.Item>
-                ))}
+                {records &&
+                  records.map((record) => (
+                    <Menu.Item
+                      key={record.date}
+                      onClick={() => {
+                        setCurrentRecord(record);
+                        setRecordModalVisible(true);
+                      }}
+                    >
+                      {record.date}
+                    </Menu.Item>
+                  ))}
               </SubMenu>
             )}
           </Menu>
           <ChangePasswordModal
             visible={cpModalVisible}
             user={user}
-            onCreate={(info) => {
-              changePassword(info);
+            onCreate={async (info) => {
+              await changePassword({
+                variables: { data: user, newPassword: info.newPassword },
+              });
               setCpModalVisible(false);
+              logout();
             }}
             onCancel={() => {
               setCpModalVisible(false);
@@ -131,8 +140,10 @@ const UserControl = ({ user, setUser }) => {
           </Button>
           <LoginModal
             visible={loginModalVisible}
-            onCreate={(user) => {
-              login(user);
+            onCreate={async (user) => {
+              const userReturn = await login({ variables: { data: user } });
+              // console.log(userReturn.data.login);
+              setUser(user);
               setLoginModalVisible(false);
             }}
             onCancel={() => {
