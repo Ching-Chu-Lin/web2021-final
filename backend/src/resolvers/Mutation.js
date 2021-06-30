@@ -283,6 +283,10 @@ const Mutation = {
    */
   async createOpenday(parent, { data: args }, { db }, info) {
     console.log("resolvers/Mutation/createOpenday");
+    if (!request.user) throw new Error("Unauthenticated operation");
+    if (request.user.username !== "admin")
+      throw new Error("Only admin can create / update Openday");
+
     // weekday: type of string
     const existing = await db.OpendayModel.findOne({ weekday: args.weekday });
 
@@ -298,7 +302,11 @@ const Mutation = {
     const openday = await new db.OpendayModel({ ...args }).save();
     return openday;
   },
-  async deleteOpenday(parent, { weekday }, { db, pubsub }, info) {
+  async deleteOpenday(parent, { weekday }, { db, request }, info) {
+    console.log("resolvers/Mutation/deleteOpenday");
+    if (!request.user) throw new Error("Unauthenticated operation");
+    if (request.user.username !== "admin")
+      throw new Error("Only admin can delete Openday");
     const deletedOpenday = await db.OpendayModel.findOneAndDelete({
       weekday: weekday,
     });
