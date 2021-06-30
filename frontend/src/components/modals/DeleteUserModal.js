@@ -18,7 +18,7 @@ const DeleteUserModal = ({ visible, identity, onCreate, onCancel }) => {
 
   const createFooter = () => {
     return [
-      <Button key="login" type="primary" onClick={onOk}>
+      <Button key="login" type="danger" onClick={onOk}>
         確定
       </Button>,
       <Button key="cancel" onClick={onCancel}>

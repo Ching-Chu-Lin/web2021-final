@@ -9,10 +9,12 @@ import CreateUserModal from "./modals/CreateUserModal";
 import DeleteUserModal from "./modals/DeleteUserModal";
 import OpendayModal from "./modals/OpendayModal";
 import {
+  USER_RECORDS_QUERY,
   LOGIN_MUTATION,
+  CREATE_USER_MUTATION,
+  DELETE_USER_MUTATION,
   CHANGE_USERNAME_MUTATION,
   CHANGE_PASSWORD_MUTATION,
-  USER_RECORDS_QUERY,
 } from "../graphql";
 
 const UserControl = ({ user, setUser }) => {
@@ -60,6 +62,10 @@ const UserControl = ({ user, setUser }) => {
   const [changeUsername] = useMutation(CHANGE_USERNAME_MUTATION);
 
   const [changePassword] = useMutation(CHANGE_PASSWORD_MUTATION);
+
+  const [createUser] = useMutation(CREATE_USER_MUTATION);
+
+  const [deleteUser] = useMutation(DELETE_USER_MUTATION);
 
   const logout = () => {
     setUser(null);
@@ -169,7 +175,10 @@ const UserControl = ({ user, setUser }) => {
                 <CreateUserModal
                   visible={createModalVisible}
                   identity={user.identity}
-                  onCreate={() => {
+                  onCreate={async (user) => {
+                    await createUser({
+                      variables: { date: user },
+                    });
                     setCreateModalVisible(false);
                   }}
                   onCancel={() => setCreateModalVisible(false)}
@@ -183,7 +192,10 @@ const UserControl = ({ user, setUser }) => {
                 <DeleteUserModal
                   visible={deleteModalVisible}
                   identity={user.identity}
-                  onCreate={() => {
+                  onCreate={async (username) => {
+                    await createUser({
+                      variables: { username },
+                    });
                     setDeleteModalVisible(false);
                   }}
                   onCancel={() => setDeleteModalVisible(false)}
