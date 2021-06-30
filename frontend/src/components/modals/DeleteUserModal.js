@@ -1,35 +1,12 @@
-import { Modal, Form, Input, Radio, Button, Checkbox } from "antd";
+import { Modal, Form, Input, Radio, Button } from "antd";
 import { useState } from "react";
-import { SAVED_USER } from "../../constants";
 
-const LoginModal = ({ visible, onCreate, onCancel }) => {
+const DeleteUserModal = ({ visible, identity, onCreate, onCancel }) => {
   const [form] = Form.useForm();
-
-  const [loginInfo, setLoginInfo] = useState(
-    JSON.parse(localStorage.getItem(SAVED_USER)) || {}
-  );
-
-  const rememberLogin = (value) => {
-    setLoginInfo(value);
-    localStorage.setItem(SAVED_USER, JSON.stringify(value));
-  };
-
-  const forgetLogin = (value) => {
-    if (
-      value.username === loginInfo.username &&
-      value.identity === loginInfo.identity
-    ) {
-      setLoginInfo({});
-      localStorage.removeItem(SAVED_USER);
-    }
-  };
 
   const onOk = () => {
     form.validateFields().then((value) => {
-      const { username, password, identity, remember } = value;
-      if (remember) rememberLogin(value);
-      else forgetLogin(value);
-      onCreate({ username, password, identity });
+      onCreate(value);
     });
     // .catch((e) => {
     //   displayStatus({
@@ -39,18 +16,11 @@ const LoginModal = ({ visible, onCreate, onCancel }) => {
     // });
   };
 
-  // const onForgetPassword = () => {
-  //   // TODO
-  // };
-
   const createFooter = () => {
     return [
-      <Button key="login" type="primary" onClick={onOk}>
-        登入
+      <Button key="login" type="danger" onClick={onOk}>
+        確定
       </Button>,
-      // <Button key="forget" type="danger" onClick={onForgetPassword}>
-      //   忘記密碼
-      // </Button>,
       <Button key="cancel" onClick={onCancel}>
         取消
       </Button>,
@@ -60,12 +30,12 @@ const LoginModal = ({ visible, onCreate, onCancel }) => {
   return (
     <Modal
       visible={visible}
-      title="登入"
+      title="刪除使用者"
       footer={createFooter()}
       onCancel={onCancel}
       onOk={onOk}
     >
-      <Form form={form} name="login_form" initialValues={loginInfo || {}}>
+      <Form form={form} name="delete_user_form" initialValues={{ identity }}>
         <Form.Item
           name="username"
           label="帳號"
@@ -79,7 +49,7 @@ const LoginModal = ({ visible, onCreate, onCancel }) => {
           <Input />
         </Form.Item>
 
-        <Form.Item
+        {/* <Form.Item
           name="password"
           label="密碼"
           rules={[
@@ -90,7 +60,7 @@ const LoginModal = ({ visible, onCreate, onCancel }) => {
           ]}
         >
           <Input.Password />
-        </Form.Item>
+        </Form.Item> */}
         <Form.Item
           name="identity"
           label="登入身份"
@@ -101,16 +71,13 @@ const LoginModal = ({ visible, onCreate, onCancel }) => {
             },
           ]}
         >
-          <Radio.Group>
+          <Radio.Group disabled={true}>
             <Radio value="patient">校隊學生</Radio>
             <Radio value="doctor">物治學生</Radio>
           </Radio.Group>
-        </Form.Item>
-        <Form.Item name="remember" valuePropName="checked">
-          <Checkbox>記住我</Checkbox>
         </Form.Item>
       </Form>
     </Modal>
   );
 };
-export default LoginModal;
+export default DeleteUserModal;

@@ -9,6 +9,8 @@ const RecordModal = ({ visible, mode, record, onCreate, onCancel }) => {
     switch (mode) {
       case "view":
         return true;
+      case "modify":
+        return false;
       default:
         return true;
     }
@@ -37,7 +39,15 @@ const RecordModal = ({ visible, mode, record, onCreate, onCancel }) => {
             關閉
           </Button>,
         ];
-
+      case "modify":
+        return [
+          <Button key="create" type="primary" onClick={onOk}>
+            儲存病歷
+          </Button>,
+          <Button key="close" onClick={onCancel}>
+            關閉
+          </Button>,
+        ];
       default:
         return [];
     }
