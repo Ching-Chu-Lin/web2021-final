@@ -1,8 +1,8 @@
 import { Modal, Layout, Menu, Form, Button } from "antd";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { useQuery, useMutation } from "@apollo/react-hooks";
 import RecordForm from "../forms/RecordForm";
-import AuthContext from "../context/AuthContext";
+import AuthContext from "../../context/AuthContext";
 import { DAILY_USER_RECORD_QUERY, CREATE_RECORD_MUTATION } from "../../graphql";
 
 const PatientsModal = ({
