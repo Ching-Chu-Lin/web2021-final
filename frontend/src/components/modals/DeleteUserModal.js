@@ -1,5 +1,4 @@
 import { Modal, Form, Input, Radio, Button } from "antd";
-import { useState } from "react";
 
 const DeleteUserModal = ({ visible, identity, onCreate, onCancel }) => {
   const [form] = Form.useForm();
@@ -8,14 +7,14 @@ const DeleteUserModal = ({ visible, identity, onCreate, onCancel }) => {
   const showConfirm = () => {
     confirm({
       title: "確定刪除？",
-      onOk(){
+      onOk() {
         form.validateFields().then((value) => {
           onCreate(value);
         });
-      }
-    })
+      },
+    });
     //form.validateFields().then((value) => {
-      //onCreate(value);
+    //onCreate(value);
     //});
     // .catch((e) => {
     //   displayStatus({

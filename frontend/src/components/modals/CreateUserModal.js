@@ -1,5 +1,4 @@
 import { Modal, Form, Input, Radio, Button } from "antd";
-import { useState } from "react";
 
 const CreateUserModal = ({ visible, identity, onCreate, onCancel }) => {
   const [form] = Form.useForm();

@@ -29,12 +29,12 @@ const AppointmentModal = ({
   const showConfirm = () => {
     confirm({
       title: "確定刪除？",
-      onOk(){
+      onOk() {
         onDelete();
       },
-      onCancel(){}
-    })
-  }
+      onCancel() {},
+    });
+  };
 
   const onOk = () => {
     form.validateFields().then((values) => {
@@ -70,29 +70,53 @@ const AppointmentModal = ({
     switch (mode) {
       case "create":
         return [
-          <Button style={{borderRadius: "5px"}} key="create" type="primary" onClick={onOk}>
+          <Button
+            style={{ borderRadius: "5px" }}
+            key="create"
+            type="primary"
+            onClick={onOk}
+          >
             預約
           </Button>,
-          <Button style={{borderRadius: "5px"}} key="cancel" onClick={onCancel}>
+          <Button
+            style={{ borderRadius: "5px" }}
+            key="cancel"
+            onClick={onCancel}
+          >
             取消
           </Button>,
         ];
       case "modify":
         return [
           readOnly ? (
-            <Button style={{borderRadius: "5px"}} key="modify" type="primary" onClick={onEdit}>
+            <Button
+              style={{ borderRadius: "5px" }}
+              key="modify"
+              type="primary"
+              onClick={onEdit}
+            >
               修改預約
             </Button>
           ) : (
-            <Button style={{borderRadius: "5px"}} key="modify" type="primary" onClick={onOk}>
+            <Button
+              style={{ borderRadius: "5px" }}
+              key="modify"
+              type="primary"
+              onClick={onOk}
+            >
               送出修改
             </Button>
           ),
-          <Button style={{borderRadius: "5px"}} key="delete" type="danger" onClick={showConfirm}>
+          <Button
+            style={{ borderRadius: "5px" }}
+            key="delete"
+            type="danger"
+            onClick={showConfirm}
+          >
             刪除預約
           </Button>,
           <Button
-            style={{borderRadius: "5px"}}
+            style={{ borderRadius: "5px" }}
             key="cancel"
             onClick={() => {
               onCancel();

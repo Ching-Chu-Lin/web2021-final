@@ -1,5 +1,4 @@
 import { Modal, Form, Input, Button } from "antd";
-import { useState } from "react";
 
 const ChangePasswordModal = ({ visible, user, onCreate, onCancel }) => {
   const [form] = Form.useForm();
@@ -19,10 +18,15 @@ const ChangePasswordModal = ({ visible, user, onCreate, onCancel }) => {
 
   const createFooter = () => {
     return [
-      <Button style={{borderRadius: "5px"}} key="login" type="primary" onClick={onOk}>
+      <Button
+        style={{ borderRadius: "5px" }}
+        key="login"
+        type="primary"
+        onClick={onOk}
+      >
         更改密碼
       </Button>,
-      <Button style={{borderRadius: "5px"}} key="cancel" onClick={onCancel}>
+      <Button style={{ borderRadius: "5px" }} key="cancel" onClick={onCancel}>
         取消
       </Button>,
     ];

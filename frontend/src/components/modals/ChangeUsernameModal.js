@@ -1,5 +1,4 @@
 import { Modal, Form, Input, Button } from "antd";
-import { useState } from "react";
 
 const ChangeUsernameModal = ({ visible, user, onCreate, onCancel }) => {
   const [form] = Form.useForm();
@@ -62,7 +61,7 @@ const ChangeUsernameModal = ({ visible, user, onCreate, onCancel }) => {
         </Form.Item>
 
         <Form.Item
-          name="oldPassword"
+          name="password"
           label="密碼"
           rules={[
             {

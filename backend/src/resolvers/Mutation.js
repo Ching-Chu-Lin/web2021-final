@@ -62,7 +62,7 @@ const Mutation = {
   async deleteUser(parent, { username }, { db, request }, info) {
     console.log("resolvers/Mutation/deleteUser");
     if (!request.user) throw new Error("Unauthenticated operation");
-    if (request.user.name !== "admin")
+    if (request.user.username !== "admin")
       throw new Error("Only admin can create user");
 
     const user = await db.UserModel.findOne({
@@ -174,20 +174,20 @@ const Mutation = {
     if (!open) throw new Error("No service today");
 
     // if exist appointment, then update
-    const appoint = await db.AppointmentModel.findOneAndUpdate(
+    let appoint;
+    appoint = await db.AppointmentModel.findOneAndUpdate(
       { patient: request.user, date: data.date },
       { part: data.part, level: data.level, description: data.description },
       { new: true } // return updated
     );
 
-    if (!appoint) {
+    if (!appoint)
       // create appointment instance
-      return await new db.AppointmentModel({
+      appoint = await new db.AppointmentModel({
         ...data, // date, part, level, description
         id: uuidv4(),
         patient: request.user,
       }).save();
-    }
 
     // notify subscription
     pubsub.publish(`appointment ${data.date}`, {
@@ -283,6 +283,10 @@ const Mutation = {
    */
   async createOpenday(parent, { data: args }, { db }, info) {
     console.log("resolvers/Mutation/createOpenday");
+    if (!request.user) throw new Error("Unauthenticated operation");
+    if (request.user.username !== "admin")
+      throw new Error("Only admin can create / update Openday");
+
     // weekday: type of string
     const existing = await db.OpendayModel.findOne({ weekday: args.weekday });
 
@@ -290,7 +294,7 @@ const Mutation = {
     if (existing)
       return await db.OpendayModel.findOneAndUpdate(
         { weekday: args.weekday },
-        { ...data },
+        { ...args },
         { new: true } // return updated
       );
 
@@ -298,7 +302,11 @@ const Mutation = {
     const openday = await new db.OpendayModel({ ...args }).save();
     return openday;
   },
-  async deleteOpenday(parent, { weekday }, { db, pubsub }, info) {
+  async deleteOpenday(parent, { weekday }, { db, request }, info) {
+    console.log("resolvers/Mutation/deleteOpenday");
+    if (!request.user) throw new Error("Unauthenticated operation");
+    if (request.user.username !== "admin")
+      throw new Error("Only admin can delete Openday");
     const deletedOpenday = await db.OpendayModel.findOneAndDelete({
       weekday: weekday,
     });
