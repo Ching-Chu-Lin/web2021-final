@@ -121,7 +121,12 @@ const Mutation = {
 
     return true;
   },
-  async updateUserPassword(parent, { newPassword }, { db, request }, info) {
+  async updateUserPassword(
+    parent,
+    { auth, newPassword },
+    { db, request },
+    info
+  ) {
     console.log("resolvers/Mutation/updateUserPassword");
     if (!request.user) throw new Error("Unauthenticated operation");
 
