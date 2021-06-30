@@ -4,7 +4,7 @@ const RecordForm = ({ form, initialValues, readOnly }) => {
   const { TextArea } = Input;
 
   return (
-    <Form form={form} name="form_in_modal" initialValues={initialValues}>
+    <Form form={form} name="record_form" initialValues={initialValues}>
       <Form.Item
         label={<span style={{ fontWeight: "bold" }}>校隊評估狀況</span>}
       ></Form.Item>

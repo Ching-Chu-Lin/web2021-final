@@ -3,7 +3,7 @@ import { Form, Input, Slider } from "antd";
 const AppointmentForm = ({ form, initialValues, readOnly }) => {
   const { TextArea } = Input;
   return (
-    <Form form={form} name="form_in_modal" initialValues={initialValues}>
+    <Form form={form} name="appointment_form" initialValues={initialValues}>
       <Form.Item
         name="part"
         label="受傷部位"

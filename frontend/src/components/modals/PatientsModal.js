@@ -96,7 +96,6 @@ const PatientsModal = ({
         <Sider width="20%" theme="light">
           <Menu mode="inline">
             {appointments.map((appointment) => {
-              console.log(appointment);
               return (
                 <Menu.Item
                   style={{ margin: "auto" }}

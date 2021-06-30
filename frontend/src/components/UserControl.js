@@ -1,11 +1,16 @@
 import { Button, Menu } from "antd";
 import { useState } from "react";
-import { useQuery, useMutation } from "@apollo/react-hooks";
+import { useQuery, useLazyQuery, useMutation } from "@apollo/react-hooks";
 import LoginModal from "./modals/LoginModal";
+import ChangeUsernameModal from "./modals/ChangeUsernameModal";
 import ChangePasswordModal from "./modals/ChangePasswordModal";
 import RecordModal from "./modals/RecordModal";
+import CreateUserModal from "./modals/CreateUserModal";
+import DeleteUserModal from "./modals/DeleteUserModal";
+import OpendayModal from "./modals/OpendayModal";
 import {
   LOGIN_MUTATION,
+  CHANGE_USERNAME_MUTATION,
   CHANGE_PASSWORD_MUTATION,
   USER_RECORDS_QUERY,
 } from "../graphql";
@@ -15,29 +20,31 @@ const UserControl = ({ user, setUser }) => {
 
   const [loginModalVisible, setLoginModalVisible] = useState(false);
 
+  const [cnameModalVisible, setCnameModalVisible] = useState(false);
+
   const [cpModalVisible, setCpModalVisible] = useState(false);
 
   const [recordModalVisible, setRecordModalVisible] = useState(false);
 
-  // const [records, setRecords] = useState([
-  //   {
-  //     date: "2021-06-20",
-  //     part: "頭",
-  //     level: 8,
-  //     description: "智商不足", // not must
-  //     injury: "沒救了",
-  //     treatment: "皮諾可，這個直接電死",
-  //   },
-  // ]);
+  const [createModalVisible, setCreateModalVisible] = useState(false);
 
-  const {
-    loading,
-    error,
-    data: { queryUserRecords: records } = {},
-    subscribeToMore,
-  } = useQuery(USER_RECORDS_QUERY, {
-    variables: { patientName: user ? user.username : "", auth: user },
-  });
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+
+  const [opendayModalVisible, setOpendayModalVisible] = useState(false);
+
+  // const {
+  //   loading,
+  //   error,
+  //   data: { queryUserRecords: records } = {},
+  //   subscribeToMore,
+  // } = useQuery(USER_RECORDS_QUERY, {
+  //   variables: { patientName: user ? user.username : "", auth: user },
+  // });
+
+  const [
+    getRecord,
+    { loading, error, data: { queryUserRecords: records } = {} },
+  ] = useLazyQuery(USER_RECORDS_QUERY);
 
   const [currentRecord, setCurrentRecord] = useState({});
 
@@ -49,6 +56,8 @@ const UserControl = ({ user, setUser }) => {
   };
 
   const [login] = useMutation(LOGIN_MUTATION);
+
+  const [changeUsername] = useMutation(CHANGE_USERNAME_MUTATION);
 
   const [changePassword] = useMutation(CHANGE_PASSWORD_MUTATION);
 
@@ -75,19 +84,58 @@ const UserControl = ({ user, setUser }) => {
             style={{ position: "absolute", left: "0%", top: "13%" }}
           >
             <SubMenu key="user-information" title="帳戶資訊">
+              {!user.username === "admin" && (
+                <>
+                  <Menu.Item
+                    key="change-username"
+                    onClick={() => setCnameModalVisible(true)}
+                  >
+                    更改姓名
+                  </Menu.Item>
+                  <ChangeUsernameModal
+                    visible={cnameModalVisible}
+                    user={user}
+                    onCreate={async (info) => {
+                      await changeUsername({
+                        variables: {
+                          data: user,
+                          newUsername: info.newUsername,
+                        },
+                      });
+                      setCnameModalVisible(false);
+                      logout();
+                    }}
+                    onCancel={() => setCnameModalVisible(false)}
+                  />
+                </>
+              )}
               <Menu.Item
                 key="change-password"
                 onClick={() => setCpModalVisible(true)}
               >
                 更改密碼
               </Menu.Item>
+              <ChangePasswordModal
+                visible={cpModalVisible}
+                user={user}
+                onCreate={async (info) => {
+                  await changePassword({
+                    variables: { data: user, newPassword: info.newPassword },
+                  });
+                  setCpModalVisible(false);
+                  logout();
+                }}
+                onCancel={() => setCpModalVisible(false)}
+              />
             </SubMenu>
             {user.identity === "patient" && (
               <SubMenu
                 key="my-record"
                 title="我的病歷"
-                onTitleClick={() => {
-                  console.log("fetch records");
+                onTitleClick={async () => {
+                  await getRecord({
+                    variables: { patientName: user.username, auth: user },
+                  });
                 }}
               >
                 {records &&
@@ -102,31 +150,61 @@ const UserControl = ({ user, setUser }) => {
                       {record.date}
                     </Menu.Item>
                   ))}
+                <RecordModal
+                  visible={recordModalVisible}
+                  record={currentRecord}
+                  mode="view"
+                  onCancel={() => setRecordModalVisible(false)}
+                />
+              </SubMenu>
+            )}
+            {user.username === "admin" && (
+              <SubMenu key="admin" title="管理">
+                <Menu.Item
+                  key="create-user"
+                  onClick={() => setCreateModalVisible(true)}
+                >
+                  新增使用者
+                </Menu.Item>
+                <CreateUserModal
+                  visible={createModalVisible}
+                  identity={user.identity}
+                  onCreate={() => {
+                    setCreateModalVisible(false);
+                  }}
+                  onCancel={() => setCreateModalVisible(false)}
+                />
+                <Menu.Item
+                  key="delete-user"
+                  onClick={() => setDeleteModalVisible(true)}
+                >
+                  刪除使用者
+                </Menu.Item>
+                <DeleteUserModal
+                  visible={deleteModalVisible}
+                  identity={user.identity}
+                  onCreate={() => {
+                    setDeleteModalVisible(false);
+                  }}
+                  onCancel={() => setDeleteModalVisible(false)}
+                />
+                {user.identity === "doctor" && (
+                  <>
+                    <Menu.Item
+                      key="openday"
+                      onClick={() => setOpendayModalVisible(true)}
+                    >
+                      服務時間
+                    </Menu.Item>
+                    <OpendayModal
+                      visible={opendayModalVisible}
+                      onCancel={() => setOpendayModalVisible(false)}
+                    />
+                  </>
+                )}
               </SubMenu>
             )}
           </Menu>
-          <ChangePasswordModal
-            visible={cpModalVisible}
-            user={user}
-            onCreate={async (info) => {
-              await changePassword({
-                variables: { data: user, newPassword: info.newPassword },
-              });
-              setCpModalVisible(false);
-              logout();
-            }}
-            onCancel={() => {
-              setCpModalVisible(false);
-            }}
-          />
-          <RecordModal
-            visible={recordModalVisible}
-            record={currentRecord}
-            mode="view"
-            onCancel={() => {
-              setRecordModalVisible(false);
-            }}
-          />
         </div>
       ) : (
         <>

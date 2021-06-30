@@ -9,6 +9,33 @@ export const LOGIN_MUTATION = gql`
   }
 `;
 
+export const CREATE_USER_MUTATION = gql`
+  mutation createUser($data: UserInput!) {
+    signup(data: $data) {
+      username
+      identity
+    }
+  }
+`;
+
+export const DELETE_USER_MUTATION = gql`
+  mutation deleteUser($username: String!) {
+    deleteUser(username: $username) {
+      username
+      identity
+    }
+  }
+`;
+
+export const CHANGE_USERNAME_MUTATION = gql`
+  mutation updateUserUsername($data: UserInput!, $newUsername: String!) {
+    updateUserUsername(data: $data, newUsername: $newUsername) {
+      username
+      identity
+    }
+  }
+`;
+
 export const CHANGE_PASSWORD_MUTATION = gql`
   mutation updateUserPassword($data: UserInput!, $newPassword: String!) {
     updateUserPassword(data: $data, newPassword: $newPassword) {
@@ -55,6 +82,24 @@ export const CREATE_RECORD_MUTATION = gql`
       description
       injury
       treatment
+    }
+  }
+`;
+
+export const CREATE_OPENDAY_MUTATION = gql`
+  mutation createOpenday($data: OpendayInput!) {
+    createOpenday(data: $data) {
+      weekday
+      doctor
+    }
+  }
+`;
+
+export const DELETE_OPENDAY_MUTATION = gql`
+  mutation deleteOpenday($weekday: Weekday!) {
+    deleteOpenday(weekday: $weekday) {
+      weekday
+      doctor
     }
   }
 `;
