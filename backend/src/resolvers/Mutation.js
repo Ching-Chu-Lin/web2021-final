@@ -30,7 +30,7 @@ const Mutation = {
   async createUser(parent, { data: args }, { db, request }, info) {
     console.log("resolvers/Mutation/createUser");
     if (!request.user) throw new Error("Unauthenticated operation");
-    if (request.user.name !== "admin")
+    if (request.user.username !== "admin")
       throw new Error("Only admin can create user");
     if (args.identity !== request.user.identity)
       throw new Error(
