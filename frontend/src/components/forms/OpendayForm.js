@@ -1,8 +1,16 @@
 import { Form, Input, Button, Radio } from "antd";
-import { useState } from "react";
+import { useState, useContext } from "react";
+import { useMutation } from "@apollo/react-hooks";
+import AuthContext from "../../context/AuthContext";
+import {
+  CREATE_OPENDAY_MUTATION,
+  DELETE_OPENDAY_MUTATION,
+} from "../../graphql";
 
 const OpendayForm = ({ day }) => {
   const [form] = Form.useForm();
+
+  const [token, setToken] = useContext(AuthContext);
 
   const weekdayEtoC = (weekday) => {
     switch (weekday) {
@@ -35,16 +43,37 @@ const OpendayForm = ({ day }) => {
   const [open, setOpen] = useState(checkDayOpen(day));
 
   const onOpenChange = (changedValue, { open, doctor }) => {
-    console.log(open);
     setOpen(open);
     if (!open) form.setFieldsValue({ doctor: "" }); //  Maybe not needed?
   };
 
   const [readOnly, setReadOnly] = useState(true);
 
+  const [createOpenday] = useMutation(CREATE_OPENDAY_MUTATION);
+
+  const [deleteOpenday] = useMutation(DELETE_OPENDAY_MUTATION);
+
   const onOk = () => {
-    form.validateFields().then((value) => {
-      console.log(value);
+    form.validateFields().then(async ({ open, doctor }) => {
+      if (open) {
+        await createOpenday({
+          variables: { data: { weekday: day.weekday, doctor } },
+          context: {
+            headers: {
+              authorization: token ? `Bearer ${token}` : "",
+            },
+          },
+        });
+      } else {
+        await deleteOpenday({
+          variables: { weekday: day.weekday },
+          context: {
+            headers: {
+              authorization: token ? `Bearer ${token}` : "",
+            },
+          },
+        });
+      }
       setReadOnly(true);
     });
   };

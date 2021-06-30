@@ -44,8 +44,10 @@ export const APPOINTMENT_QUERY = gql`
 `;
 
 export const OPENDAY_QUERY = gql`
-  query queryOpenday {
-    weekday
-    doctor
+  query {
+    queryOpenday {
+      weekday
+      doctor
+    }
   }
 `;
