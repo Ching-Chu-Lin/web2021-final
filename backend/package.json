@@ -13,9 +13,7 @@
     "bcrypt": "^5.0.1",
     "graphql-yoga": "^1.17.4",
     "jsonwebtoken": "^8.5.1",
-    "moment": "^2.29.1"
-  },
-  "devDependencies": {
+    "moment": "^2.29.1",
     "@babel/cli": "^7.8.4",
     "@babel/core": "^7.9.6",
     "@babel/node": "^7.8.7",
