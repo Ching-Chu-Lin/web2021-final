@@ -17,10 +17,17 @@ const CreateUserModal = ({ visible, identity, onCreate, onCancel }) => {
 
   const createFooter = () => {
     return [
-      <Button key="login" type="primary" onClick={onOk}>
+      <Button 
+        style={{borderRadius: "5px"}}
+        key="login" 
+        type="primary" 
+        onClick={onOk}>
         確定
       </Button>,
-      <Button key="cancel" onClick={onCancel}>
+      <Button 
+        style={{borderRadius: "5px"}}
+        key="cancel" 
+        onClick={onCancel}>
         取消
       </Button>,
     ];

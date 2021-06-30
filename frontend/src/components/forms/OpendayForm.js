@@ -85,7 +85,7 @@ const OpendayForm = ({ day }) => {
   const { confirm } = Modal;
   const showConfirm = () => {
     confirm({
-      title: "確定修改？",
+      title: "確定送出？",
       onOk(){
         onConfirm();
       },
@@ -140,11 +140,19 @@ const OpendayForm = ({ day }) => {
 
       <Form.Item>
         {readOnly ? (
-          <Button key="modify" type="primary" onClick={onEdit}>
+          <Button 
+            style={{borderRadius: "5px"}}
+            key="modify" 
+            type="primary" 
+            onClick={onEdit}>
             修改
           </Button>
         ) : (
-          <Button key="modify" type="primary" onClick={showConfirm}>
+          <Button
+            style={{borderRadius: "5px"}}
+            key="modify" 
+            type="primary" 
+            onClick={showConfirm}>
             送出
           </Button>
         )}

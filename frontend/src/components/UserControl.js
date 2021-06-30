@@ -106,7 +106,7 @@ const UserControl = ({ user, setUser }) => {
             姓名：{user.username}
           </div>
           <Button
-            style={{ position: "absolute", left: "33%", top: "6%" }}
+            style={{ position: "absolute", left: "33%", top: "6%", borderRadius: "5px"}}
             type="primary"
             onClick={logout}
           >

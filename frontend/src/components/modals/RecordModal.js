@@ -45,10 +45,10 @@ const RecordModal = ({ visible, mode, record, onCreate, onCancel }) => {
         ];
       case "modify":
         return [
-          <Button key="create" type="primary" onClick={onOk}>
+          <Button style={{borderRadius: "5px"}} key="create" type="primary" onClick={onOk}>
             儲存病歷
           </Button>,
-          <Button key="close" onClick={onCancel}>
+          <Button style={{borderRadius: "5px"}} key="close" onClick={onCancel}>
             關閉
           </Button>,
         ];

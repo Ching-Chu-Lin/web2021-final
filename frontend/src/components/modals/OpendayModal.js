@@ -10,7 +10,7 @@ const OpendayModal = ({ visible, onCancel }) => {
 
   const createFooter = () => {
     return [
-      <Button key="close" onClick={onCancel}>
+      <Button style={{borderRadius: "5px"}} key="close" onClick={onCancel}>
         關閉
       </Button>,
     ];
