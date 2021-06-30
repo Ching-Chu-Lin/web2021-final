@@ -1,7 +1,7 @@
 type Query {
   # Record
-  queryUserRecords(patientName: String!): [Record!]
-  queryUserRecordsByDate(patientName: String!, date: String!): Record
+  queryUserRecords(patientName: String!): [Record!] # for patient
+  queryUserRecordsByDate(patientName: String!, date: String!): Record # for doctor
   # Appointment
   queryAppointment(date: String!): DailyAppointmentReturn!
   # Openday
@@ -23,6 +23,19 @@ type Mutation {
   # Openday
   createOpenday(data: OpendayInput!): Openday!
   deleteOpenday(weekday: Weekday!): Openday!
+}
+
+type Subscription {
+  appointment(date: String!): SubscriptionType!
+  recordPatientName(patientName: String!): SubscriptionType!
+  recordPatientNameDate(patientName: String!, date: String!): SubscriptionType!
+}
+
+enum SubscriptionType {
+  CREATE_APPOINTMENT
+  DELETE_APPOINTMENT
+  CREATE_RECORD
+  RECORD_DATE
 }
 
 enum Weekday {
