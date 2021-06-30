@@ -18,7 +18,8 @@ import reportWebVitals from "./reportWebVitals";
 import "antd/dist/antd.css";
 import AuthContext from "./context/auth-context"
 
-const backend = "localhost:8888/";
+const backend = process.env.REACT_APP_BACKEND_URL;
+
 // Create an http link:
 const httpLink = new HttpLink({
   uri: `http://${backend}`,

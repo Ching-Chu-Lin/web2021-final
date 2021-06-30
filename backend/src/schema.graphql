@@ -1,23 +1,28 @@
 type Query {
-  queryUser(username: String!): User!
-  queryAppointment(date: String!): [Appointment!]
-  queryOpenday: [Weekday!]
+  # Record
+  queryUserRecords(patientName: String!): [Record!]
+  queryUserRecordsByDate(patientName: String!, date: String!): Record
+  # Appointment
+  queryAppointment(date: String!): DailyAppointmentReturn!
+  # Openday
+  queryOpenday: [Openday!]
 }
 
 type Mutation {
-  signup(data: CreateUserInput!): User! #createUser
-  login(username: String, password: String): User!
-
-  deleteUser(id: ID!): User!
-  updateUserUsername(id: ID!, username: String!): User!
-  updateUserPassword(id: ID!, password: String!): User!
-
-  createAppointment(data: CreatAppointmentInput!): Appointment!
-  deleteAppointment(id: ID!): Appointment!
-  updateAppointmentDescription(id: ID!, description: String): Appointment!
-
-  createOpenday(weekday: Weekday): Weekday!
-  deleteOpenday(weekday: Weekday): Weekday!
+  # User
+  login(data: UserInput!): AuthData!
+  createUser(data: UserInput!): Boolean!
+  deleteUser(username: String!): Boolean!
+  updateUserUsername(auth: UserInput!, newUsername: String!): Boolean!
+  updateUserPassword(auth: UserInput!, newPassword: String!): Boolean!
+  # Appointment
+  createAppointment(data: CreatAppointmentInput!): Appointment! # create / update
+  deleteAppointment(date: String!): Appointment!
+  # Record
+  createRecord(data: CreateRecordInput!): Record! # create / update
+  # Openday
+  createOpenday(data: OpendayInput!): Openday!
+  deleteOpenday(weekday: Weekday!): Openday!
 }
 
 enum Weekday {
@@ -30,7 +35,17 @@ enum Weekday {
   SATURDAY
 }
 
-input CreateUserInput {
+input OpendayInput {
+  weekday: Weekday!
+  doctor: String!
+}
+
+type Openday {
+  weekday: Weekday!
+  doctor: String!
+}
+
+input UserInput {
   username: String!
   password: String!
   identity: String!
@@ -41,12 +56,39 @@ type User {
   username: String!
   password: String!
   identity: String!
-  record: [String!]
+  records: [Record!]
+}
+
+type AuthData {
+  username: String!
+  identity: String!
+  token: String!
+}
+
+input CreateRecordInput {
+  patientName: String! #username
+  date: String!
+  part: String!
+  level: Int!
+  description: String
+  injury: String!
+  treatment: String!
+}
+
+type Record {
+  id: ID!
+  date: String!
+  part: String!
+  level: Int!
+  description: String
+  injury: String!
+  treatment: String!
 }
 
 input CreatAppointmentInput {
   date: String!
-  username: String!
+  part: String!
+  level: Int!
   description: String
 }
 
@@ -54,5 +96,13 @@ type Appointment {
   id: ID!
   date: String!
   patient: User!
+  part: String!
+  level: Int!
   description: String
+}
+
+type DailyAppointmentReturn {
+  doctor: String
+  number: Int
+  appointments: [Appointment!]
 }

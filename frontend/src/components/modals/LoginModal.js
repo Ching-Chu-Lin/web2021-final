@@ -39,19 +39,26 @@ const LoginModal = ({ visible, onCreate, onCancel }) => {
     // });
   };
 
-  const onForgetPassword = () => {
-    // TODO
-  };
+  // const onForgetPassword = () => {
+  //   // TODO
+  // };
 
   const createFooter = () => {
     return [
       <Button style={{borderRadius: "5px"}} key="login" type="primary" onClick={onOk}>
         登入
       </Button>,
+<<<<<<< HEAD
       <Button style={{borderRadius: "5px"}} key="forget" type="danger" onClick={onForgetPassword}>
         忘記密碼
       </Button>,
       <Button style={{borderRadius: "5px"}} key="cancel" onClick={onCancel}>
+=======
+      // <Button key="forget" type="danger" onClick={onForgetPassword}>
+      //   忘記密碼
+      // </Button>,
+      <Button key="cancel" onClick={onCancel}>
+>>>>>>> 210785ba6d44434f4f983de1d5a1de902cc75ddb
         取消
       </Button>,
     ];
@@ -65,7 +72,7 @@ const LoginModal = ({ visible, onCreate, onCancel }) => {
       onCancel={onCancel}
       onOk={onOk}
     >
-      <Form form={form} name="form_in_modal" initialValues={loginInfo || {}}>
+      <Form form={form} name="login_form" initialValues={loginInfo || {}}>
         <Form.Item
           name="username"
           label="帳號"

@@ -7,6 +7,8 @@ import Mutation from "./resolvers/Mutation";
 import User from "./resolvers/User";
 import Appointment from "./resolvers/Appointment";
 
+import { authenticate } from "./middleware/is-auth";
+
 const pubsub = new PubSub();
 
 const server = new GraphQLServer({
@@ -18,10 +20,12 @@ const server = new GraphQLServer({
     User,
     Appointment,
   },
-  context: {
+  context: (request) => ({
     db,
     pubsub,
-  },
+    ...request,
+  }),
+  middlewares: [authenticate],
 });
 
 mongo.connect();

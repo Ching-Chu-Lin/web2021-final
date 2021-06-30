@@ -2,35 +2,101 @@ import moment from "moment";
 import { WEEKDAY_DICT } from "../utils";
 
 const Query = {
-  async queryOpenday(parent, args, { db, pubsub }, info) {
+  async queryOpenday(parent, args, { db }, info) {
     console.log("resolvers/Query/queryOpenday");
-    const opendays = await db.OpendayModel.find();
-    const weekdays = opendays.map((openday) => openday.weekday);
-    return weekdays;
+    return await db.OpendayModel.find();
   },
 
-  async queryUser(parent, { username }, { db, pubsub }, info) {
-    console.log("resolvers/Query/queryUser");
-    if (!username) {
-      throw new Error("Username cannot be empty");
-    }
-    const user = await db.UserModel.findOne({ username: username });
-    if (!user) {
-      throw new Error("User not exist");
-    }
-    return user;
+  async queryUserRecords(parent, { patientName }, { db, request }, info) {
+    console.log("resolvers/Query/queryUserRecords");
+    if (!request.user) throw new Error("Unauthenticated operation");
+    if (
+      request.user.identity !== "doctor" &&
+      request.user.username !== patientName
+    )
+      // doctor & oneself
+      throw new Error("Only doctor and patient oneself can see one's record");
+
+    // patient exist
+    const patient = await db.UserModel.findOne({
+      username: patientName,
+      identity: "patient",
+    });
+    if (!patient) throw new Error("No such patient");
+
+    const records = await Promise.all(
+      patient.records.map(async (recordId) => {
+        return await db.RecordModel.findById(recordId);
+      })
+    );
+
+    records.sort((a, b) => moment(a.date) - moment(b.date));
+    return records;
   },
 
-  async queryAppointment(parent, { date }, { db, pubsub }, info) {
+  async queryUserRecordsByDate(
+    parent,
+    { patientName, date },
+    { db, request },
+    info
+  ) {
+    console.log("resolvers/Query.js queryUserRecordsByDate");
+    if (!request.user) throw new Error("Unauthenticated operation");
+    if (
+      request.user.identity !== "doctor" &&
+      request.user.username !== patientName
+    )
+      // doctor & oneself
+      throw new Error("Only doctor and patient oneself can see one's record");
+
+    // patient exist
+    const patient = await db.UserModel.findOne({
+      username: patientName,
+      identity: "patient",
+    });
+    if (!patient) throw new Error("No such patient");
+
+    const records = await Promise.all(
+      patient.records.map(async (recordId) => {
+        return await db.RecordModel.findById(recordId);
+      })
+    );
+
+    const r = records.find((r) => r.date === date);
+    return r || null;
+  },
+
+  async queryAppointment(parent, { date }, { db, request }, info) {
     console.log("resolvers/Query/queryAppointment");
-    // check opendays
-    const opendays = await db.OpendayModel.find();
-    const open_weekdays = opendays.map((openday) => openday.weekday);
-    if (!open_weekdays.includes(WEEKDAY_DICT[moment(date).weekday()]))
-      throw new Error("No service on " + WEEKDAY_DICT[moment(date).weekday()]);
 
-    const appoints = await db.AppointmentModel.find({ date: date });
-    return appoints;
+    // check opendays
+    const open = await db.OpendayModel.findOne({
+      weekday: WEEKDAY_DICT[moment(date).weekday()],
+    });
+    if (!open) return { doctor: "" };
+
+    const appointments = await db.AppointmentModel.find({ date: date });
+
+    // not logged in
+    if (!request.user)
+      return {
+        doctor: open.doctor,
+        number: appointments.length,
+        appointments: [],
+      };
+
+    if (request.user.identity === "patient") {
+      return {
+        doctor: open.doctor,
+        number: appointments.length,
+        appointments: appointments.filter((appoint) =>
+          appoint.patient.equals(request.user._id)
+        ),
+      };
+    }
+
+    // request.user.identity === "doctor"
+    return { doctor: open.doctor, number: appointments.length, appointments };
   },
 };
 

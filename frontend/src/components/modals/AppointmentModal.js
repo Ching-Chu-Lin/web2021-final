@@ -104,7 +104,6 @@ const AppointmentModal = ({
       onCancel={onCancel}
       onOk={onOk}
     >
-      {console.log(appointment)}
       <AppointmentForm
         form={form}
         initialValues={appointment || {}}

@@ -1,15 +1,20 @@
 import { Modal, Layout, Menu, Form, Button } from "antd";
 import { useState } from "react";
+import { useQuery, useMutation } from "@apollo/react-hooks";
 import RecordForm from "../forms/RecordForm";
+import { DAILY_USER_RECORD_QUERY, CREATE_RECORD_MUTATION } from "../../graphql";
 
-const PatientsModal = ({ visible, mode, appointments, onCreate, onCancel }) => {
+const PatientsModal = ({
+  visible,
+  mode,
+  date,
+  appointments,
+  onCreate,
+  onCancel,
+  user,
+}) => {
   const { Sider, Content } = Layout;
   const [form] = Form.useForm();
-
-  const findRecord = (appointment) => {
-    const record = null; // TODO: ask backend
-    if (!record) return { ...appointment, injury: "", treatment: "" };
-  };
 
   const isReadOnly = (mode) => {
     switch (mode) {
@@ -24,10 +29,30 @@ const PatientsModal = ({ visible, mode, appointments, onCreate, onCancel }) => {
 
   const [readOnly, setReadOnly] = useState(isReadOnly(mode));
 
+  const [currentPatient, setCurrentPatient] = useState("");
+
+  const {
+    loading,
+    error,
+    data: { queryUserRecordsByDate: record } = {},
+    subscribeToMore,
+    refetch,
+  } = useQuery(DAILY_USER_RECORD_QUERY, {
+    variables: { date, patientName: currentPatient, auth: user },
+  });
+
+  const [saveRecord] = useMutation(CREATE_RECORD_MUTATION);
+
   const onOk = () => {
-    form.validateFields().then((values) => {
+    form.validateFields().then(async (values) => {
       console.log(values);
-      onCreate(values);
+      const savedRecord = await saveRecord({
+        variables: {
+          data: { date, patientName: currentPatient, ...values },
+          auth: user,
+        },
+      });
+      console.log(savedRecord);
     });
     // .catch((e) => {
     //   displayStatus({
@@ -68,17 +93,23 @@ const PatientsModal = ({ visible, mode, appointments, onCreate, onCancel }) => {
       onOk={onOk}
     >
       <Layout>
-
         <Sider width="20%" theme="light">
           <Menu mode="inline">
             {appointments.map((appointment) => {
               return (
                 <Menu.Item
-                  style={{margin: "auto"}}
+                  style={{ margin: "auto" }}
                   key={appointment.patient.username}
-                  onClick={() => {
-                    const record = findRecord(appointment);
-                    form.setFieldsValue(record);
+                  onClick={async () => {
+                    setCurrentPatient(appointment.patient.username);
+                    await refetch();
+                    form.setFieldsValue(
+                      record || {
+                        ...appointment,
+                        injury: null,
+                        treatment: null,
+                      }
+                    );
                   }}
                 >
                   {appointment.patient.username}
@@ -87,7 +118,14 @@ const PatientsModal = ({ visible, mode, appointments, onCreate, onCancel }) => {
             })}
           </Menu>
         </Sider>
-        <Content style={{alignItems:"center", padding: "10px", paddingTop: "20px", paddingBottom: "0px"}}>
+        <Content
+          style={{
+            alignItems: "center",
+            padding: "10px",
+            paddingTop: "20px",
+            paddingBottom: "0px",
+          }}
+        >
           <RecordForm form={form} readOnly={readOnly} />
         </Content>
       </Layout>

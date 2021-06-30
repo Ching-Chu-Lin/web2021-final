@@ -1,12 +1,12 @@
 import { Modal, Form, Input, Button } from "antd";
 import { useState } from "react";
 
-const ChangePasswordModal = ({ visible, user, onCreate, onCancel }) => {
+const ChangeUsernameModal = ({ visible, user, onCreate, onCancel }) => {
   const [form] = Form.useForm();
 
   const onOk = () => {
     form.validateFields().then((value) => {
-      form.resetFields(["oldPassword", "newPassword"]);
+      form.resetFields(["password", "newUsername"]);
       onCreate(value);
     });
     // .catch((e) => {
@@ -19,10 +19,10 @@ const ChangePasswordModal = ({ visible, user, onCreate, onCancel }) => {
 
   const createFooter = () => {
     return [
-      <Button style={{borderRadius: "5px"}} key="login" type="primary" onClick={onOk}>
-        更改密碼
+      <Button key="login" type="primary" onClick={onOk}>
+        更改姓名
       </Button>,
-      <Button style={{borderRadius: "5px"}} key="cancel" onClick={onCancel}>
+      <Button key="cancel" onClick={onCancel}>
         取消
       </Button>,
     ];
@@ -31,23 +31,23 @@ const ChangePasswordModal = ({ visible, user, onCreate, onCancel }) => {
   return (
     <Modal
       visible={visible}
-      title="更改密碼"
+      title="更改姓名"
       footer={createFooter()}
       onCancel={onCancel}
       onOk={onOk}
     >
       <Form
         form={form}
-        name="change_password_form"
+        name="change_username_form"
         initialValues={{ username: user.username }}
       >
         <Form.Item
           name="username"
-          label="帳號"
+          label="原帳號"
           rules={[
             {
               required: true,
-              message: "請輸入帳號",
+              message: "請輸入原帳號",
             },
           ]}
         >
@@ -56,30 +56,30 @@ const ChangePasswordModal = ({ visible, user, onCreate, onCancel }) => {
 
         <Form.Item
           name="oldPassword"
-          label="舊密碼"
+          label="密碼"
           rules={[
             {
               required: true,
-              message: "請輸入舊密碼",
+              message: "請輸入密碼",
             },
           ]}
         >
           <Input.Password />
         </Form.Item>
         <Form.Item
-          name="newPassword"
-          label="新密碼"
+          name="newUsername"
+          label="新帳號"
           rules={[
             {
               required: true,
-              message: "請輸入新密碼",
+              message: "請輸入新帳號",
             },
           ]}
         >
-          <Input.Password />
+          <Input />
         </Form.Item>
       </Form>
     </Modal>
   );
 };
-export default ChangePasswordModal;
+export default ChangeUsernameModal;

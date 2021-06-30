@@ -1,12 +1,11 @@
-import { Modal, Form, Input, Button } from "antd";
+import { Modal, Form, Input, Radio, Button } from "antd";
 import { useState } from "react";
 
-const ChangePasswordModal = ({ visible, user, onCreate, onCancel }) => {
+const DeleteUserModal = ({ visible, identity, onCreate, onCancel }) => {
   const [form] = Form.useForm();
 
   const onOk = () => {
     form.validateFields().then((value) => {
-      form.resetFields(["oldPassword", "newPassword"]);
       onCreate(value);
     });
     // .catch((e) => {
@@ -19,10 +18,10 @@ const ChangePasswordModal = ({ visible, user, onCreate, onCancel }) => {
 
   const createFooter = () => {
     return [
-      <Button style={{borderRadius: "5px"}} key="login" type="primary" onClick={onOk}>
-        更改密碼
+      <Button key="login" type="danger" onClick={onOk}>
+        確定
       </Button>,
-      <Button style={{borderRadius: "5px"}} key="cancel" onClick={onCancel}>
+      <Button key="cancel" onClick={onCancel}>
         取消
       </Button>,
     ];
@@ -31,16 +30,12 @@ const ChangePasswordModal = ({ visible, user, onCreate, onCancel }) => {
   return (
     <Modal
       visible={visible}
-      title="更改密碼"
+      title="刪除使用者"
       footer={createFooter()}
       onCancel={onCancel}
       onOk={onOk}
     >
-      <Form
-        form={form}
-        name="change_password_form"
-        initialValues={{ username: user.username }}
-      >
+      <Form form={form} name="delete_user_form" initialValues={{ identity }}>
         <Form.Item
           name="username"
           label="帳號"
@@ -51,35 +46,38 @@ const ChangePasswordModal = ({ visible, user, onCreate, onCancel }) => {
             },
           ]}
         >
-          <Input readOnly={true} />
+          <Input />
         </Form.Item>
 
-        <Form.Item
-          name="oldPassword"
-          label="舊密碼"
+        {/* <Form.Item
+          name="password"
+          label="密碼"
           rules={[
             {
               required: true,
-              message: "請輸入舊密碼",
+              message: "請輸入密碼",
             },
           ]}
         >
           <Input.Password />
-        </Form.Item>
+        </Form.Item> */}
         <Form.Item
-          name="newPassword"
-          label="新密碼"
+          name="identity"
+          label="登入身份"
           rules={[
             {
               required: true,
-              message: "請輸入新密碼",
+              message: "請選擇身份",
             },
           ]}
         >
-          <Input.Password />
+          <Radio.Group disabled={true}>
+            <Radio value="patient">校隊學生</Radio>
+            <Radio value="doctor">物治學生</Radio>
+          </Radio.Group>
         </Form.Item>
       </Form>
     </Modal>
   );
 };
-export default ChangePasswordModal;
+export default DeleteUserModal;

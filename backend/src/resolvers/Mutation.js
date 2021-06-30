@@ -1,22 +1,51 @@
 import uuidv4 from "uuid/v4";
-import moment from "moment";
+import moment, { relativeTimeRounding } from "moment";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 import { ObjectId } from "mongodb";
-import { WEEKDAY_DICT, saltRounds } from "../utils";
+import { APP_SECRET, WEEKDAY_DICT, saltRounds } from "../utils";
 
 const Mutation = {
   /**
    * User
    */
-  async signup(parent, { data: args }, { db }, info) {
-    console.log("resolvers/Mutation/signup");
+  async login(parent, { data: args }, { db }, info) {
+    console.log("resolvers/Mutation/login");
+    const { username, identity, password } = args; // TODO
+
+    // user exist
+    const user = await db.UserModel.findOne({
+      username: username,
+      identity: identity,
+    });
+    if (!user) throw new Error("No such user. Authentication failed.");
+
+    // validate password
+    const valid = await bcrypt.compare(password, user.password);
+    if (!valid) throw new Error("Invalid password. Authentication failed.");
+
+    const token = jwt.sign({ _id: user._id }, APP_SECRET);
+    return { username, identity, token };
+  },
+  async createUser(parent, { data: args }, { db, request }, info) {
+    console.log("resolvers/Mutation/createUser");
+    if (!request.user) throw new Error("Unauthenticated operation");
+    if (request.user.name !== "admin")
+      throw new Error("Only admin can create user");
+    if (args.identity !== request.user.identity)
+      throw new Error(
+        "Only admin of one identity can create user with same identity"
+      );
+
     // empty username or password
     if (!args.username || !args.password)
       throw new Error("Username and password cannot be empty");
-
     // user exist
-    const existing = await db.UserModel.findOne({ username: args.username });
-    if (existing) throw new Error("Username already taken");
+    const existing = await db.UserModel.findOne({
+      username: args.username,
+      identity: args.identity,
+    });
+    if (existing) throw new Error("(Username, identity) pair already exist");
 
     // hash password
     const password = await bcrypt.hash(args.password, saltRounds);
@@ -27,147 +56,225 @@ const Mutation = {
       record: [],
     }).save();
 
-    return user;
+    return true;
   },
-  async login(parent, args, { db }, info) {
-    console.log("resolvers/Mutation/login");
-    // user exist
-    const user = await db.UserModel.findOne({ username: args.username });
-    if (!user)
-      throw new Error("No such user with username " + args.username + " found");
 
-    // validate password
-    const valid = await bcrypt.compare(args.password, user.password);
-    if (!valid) throw new Error("Invalid password");
-
-    return user;
-  },
-  async deleteUser(parent, { id: userId }, { db }, info) {
+  async deleteUser(parent, { username }, { db, request }, info) {
     console.log("resolvers/Mutation/deleteUser");
-    const user = await db.UserModel.findById(userId);
-    if (!user) throw new Error("User not exist");
+    if (!request.user) throw new Error("Unauthenticated operation");
+    if (request.user.name !== "admin")
+      throw new Error("Only admin can create user");
 
-    // delete user's all appointments
-    await db.AppointmentModel.deleteMany({ patient: ObjectId(userId) }); // return { "acknowledged" : true, "deletedCount" : 10 }
-    return await db.UserModel.findOneAndDelete({ _id: ObjectId(userId) });
+    const user = await db.UserModel.findOne({
+      username: username,
+      identity: request.user.identity,
+    });
+
+    if (!user) throw new Error("No such user");
+
+    // delete
+    user.records.forEach(async (recordId) => {
+      await db.RecordModel.findOneAndDelete({ _id: ObjectId(recordId) });
+    });
+    await db.AppointmentModel.deleteMany({ patient: user._id });
+    // return { "acknowledged" : true, "deletedCount" : 10 }
+
+    await db.UserModel.findOneAndDelete({
+      username: username,
+      identity: request.user.identity,
+    });
+
+    return true;
   },
   async updateUserUsername(
     parent,
-    { id: userId, username: newUsername },
-    { db, pubsub },
+    { auth, newUsername },
+    { db, request },
     info
   ) {
     console.log("resolvers/Mutation/updateUserUsername");
-    // empty username or password
+    if (!request.user) throw new Error("Unauthenticated operation");
+
+    // authentication once more
+    // user exist
+    const user = await db.UserModel.findOne({
+      username: auth.username,
+      identity: auth.identity,
+    });
+    if (!user) throw new Error("No such user. Authentication failed.");
+
+    // validate password
+    const valid = await bcrypt.compare(auth.password, user.password);
+    if (!valid) throw new Error("Invalid password. Authentication failed.");
+
+    // empty username
     if (!newUsername) throw new Error("Username cannot be empty");
 
-    const user = await db.UserModel.findByIdAndUpdate(
-      userId,
+    await db.UserModel.findOneAndUpdate(
+      {
+        username: request.user.username,
+        identity: request.user.identity,
+      },
       { username: newUsername },
       { new: true } // return updated
     );
-    if (!user) throw new Error("User not exist");
 
-    return user;
+    return true;
   },
   async updateUserPassword(
     parent,
-    { id: userId, password: newPassword },
-    { db, pubsub },
+    { auth, newPassword },
+    { db, request },
     info
   ) {
     console.log("resolvers/Mutation/updateUserPassword");
-    // empty username or password
+    if (!request.user) throw new Error("Unauthenticated operation");
+
+    // authentication once more
+    // user exist
+    const user = await db.UserModel.findOne({
+      username: auth.username,
+      identity: auth.identity,
+    });
+    if (!user) throw new Error("No such user. Authentication failed.");
+
+    // validate password
+    const valid = await bcrypt.compare(auth.password, user.password);
+    if (!valid) throw new Error("Invalid password. Authentication failed.");
+
+    // empty password
     if (!newPassword) throw new Error("Password cannot be empty");
 
     // sha256 hash password
     const password = await bcrypt.hash(newPassword, saltRounds);
-    const user = await db.UserModel.findByIdAndUpdate(
-      userId,
+    await db.UserModel.findOneAndUpdate(
+      {
+        username: request.user.username,
+        identity: request.user.identity,
+      },
       { password: password },
       { new: true } // return updated
     );
-    if (!user) throw new Error("User not exist");
-
-    return user;
+    return true;
   },
 
   /**
    * Appointment
    */
-  async createAppointment(parent, { data: args }, { db, pubsub }, info) {
+  async createAppointment(parent, { data: args }, { db, request }, info) {
     console.log("resolvers/Mutation/createAppointment");
-    console.log("args:", args);
-    // empty username
-    if (!args.username) throw new Error("Username cannot be empty");
-
-    // user exist
-    const user = await db.UserModel.findOne({ username: args.username });
-    if (!user) throw new Error("User not exist");
+    if (!request.user) throw new Error("Unauthenticated operation");
+    if (request.user.identity !== "patient")
+      throw new Error("Only patients can make / update appointment");
 
     // check opendays
-    const opendays = await db.OpendayModel.find();
-    const open_weekdays = opendays.map((openday) => openday.weekday);
-    if (!open_weekdays.includes(WEEKDAY_DICT[moment(args.date).weekday()]))
-      throw new Error(
-        "No service on " + WEEKDAY_DICT[moment(args.date).weekday()]
-      );
+    const open = await db.OpendayModel.findOne({
+      weekday: WEEKDAY_DICT[moment(args.date).weekday()],
+    });
+    if (!open) throw new Error("No service today");
 
-    // create appointment instance
-    const appoint = await new db.AppointmentModel({
-      ...args, // date, description
-      id: uuidv4(),
-      patient: user,
-    }).save();
+    // if exist appointment, then update
+    const appoint = await db.AppointmentModel.findOneAndUpdate(
+      { patient: request.user, date: args.date },
+      { part: args.part, level: args.level, description: args.description },
+      { new: true } // return updated
+    );
+
+    if (!appoint) {
+      // create appointment instance
+      return await new db.AppointmentModel({
+        ...args, // date, part, level, description
+        id: uuidv4(),
+        patient: request.user,
+      }).save();
+    }
 
     return appoint;
   },
-  async deleteAppointment(parent, { id: appointId }, { db, pubsub }, info) {
+  async deleteAppointment(parent, { date }, { db, request }, info) {
     console.log("resolvers/Mutation/deleteAppointment");
-    const appoint = await db.AppointmentModel.findById(appointId);
+    if (!request.user) throw new Error("Unauthenticated operation");
+    if (request.user.identity !== "patient")
+      throw new Error("Only patients can delete one's appointment");
+
+    const appoint = await db.AppointmentModel.findOne({
+      patient: request.user,
+      date,
+    });
     if (!appoint) throw new Error("Appointment not exist");
 
     return await db.AppointmentModel.findOneAndDelete({
-      _id: ObjectId(appointId),
+      patient: request.user,
+      date,
     });
   },
 
-  async updateAppointmentDescription(
-    parent,
-    { id: appointId, description },
-    { db, pubsub },
-    info
-  ) {
-    console.log("resolvers/Mutation/updateAppointmentDescription");
-    const appoint = await db.AppointmentModel.findByIdAndUpdate(
-      appointId,
-      {
-        description: description,
-      },
-      { new: true } // return updated
-    );
-    if (!appoint) throw new Error("Appointment not exist");
+  /**
+   * Record
+   */
 
-    return appoint;
+  async createRecord(parent, { data: args }, { db, request }, info) {
+    if (!request.user) throw new Error("Unauthenticated operation");
+    if (request.user.identity !== "doctor")
+      throw new Error("Only doctors can create / update record");
+
+    // patient exist
+    const patient = await db.UserModel.findOne({
+      username: args.patientName,
+      identity: "patient",
+    });
+    if (!patient) throw new Error("No such patient");
+
+    const { patientName, ...recordData } = args;
+
+    const records = await Promise.all(
+      patient.records.map(async (recordId) => {
+        return await db.RecordModel.findById(recordId);
+      })
+    );
+    // record: (user, date) unique
+    const existing = records.find((r) => r.date === args.date);
+
+    if (!existing) {
+      // create Record instance
+      const record = await new db.RecordModel({
+        id: uuidv4(),
+        ...recordData,
+      }).save();
+      // push to patient
+      patient.records.push(record);
+      patients.records.sort((a, b) => moment(a.date) - moment(b.date));
+      await patient.save();
+      return record;
+    } else {
+      // update Record
+      const record = await db.RecordModel.findOneAndUpdate(
+        { _id: ObjectId(existing._id) },
+        { ...recordData },
+        { new: true } // return updated
+      );
+      return record;
+    }
   },
 
   /**
    * Openday
    */
-  async createOpenday(parent, { weekday }, { db, pubsub }, info) {
+  async createOpenday(parent, { data: args }, { db }, info) {
     console.log("resolvers/Mutation/createOpenday");
     // weekday: type of string
-    const existing = await db.OpendayModel.findOne({ weekday: weekday });
-    if (existing) throw new Error(weekday + " already open");
+    const existing = await db.OpendayModel.findOne({ weekday: args.weekday });
+    if (existing) throw new Error(args.weekday + " already open");
 
-    const openday = await new db.OpendayModel({ weekday: weekday }).save();
-    return openday.weekday;
+    const openday = await new db.OpendayModel({ ...args }).save();
+    return openday;
   },
   async deleteOpenday(parent, { weekday }, { db, pubsub }, info) {
     const deletedOpenday = await db.OpendayModel.findOneAndDelete({
       weekday: weekday,
     });
-    return deletedOpenday.weekday;
+    if (!deletedOpenday) throw new Error(weekday + " not open");
+    return deletedOpenday;
   },
 };
 

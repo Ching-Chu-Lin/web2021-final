@@ -8,7 +8,7 @@ import AuthContext from "../context/auth-context";
 
 const App = () => {
   const { Header, Sider, Content } = Layout;
-  const [user, setUser] = useState({});
+  const [user, setUser] = useState();
   return (
     <div className="App">
       <Layout>
