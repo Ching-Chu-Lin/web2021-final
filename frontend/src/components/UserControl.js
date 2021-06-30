@@ -99,7 +99,7 @@ const UserControl = ({ user, setUser }) => {
 
   return (
     <div>
-      {console.log(error)}
+      {error && console.log(error)}
       {isLogin(user) ? (
         <div>
           <div style={{ position: "absolute", width: "100%" }}>
@@ -117,7 +117,7 @@ const UserControl = ({ user, setUser }) => {
             style={{ position: "absolute", left: "0%", top: "13%" }}
           >
             <SubMenu key="user-information" title="帳戶資訊">
-              {!user.username === "admin" && (
+              {user.username !== "admin" && (
                 <>
                   <Menu.Item
                     key="change-username"
