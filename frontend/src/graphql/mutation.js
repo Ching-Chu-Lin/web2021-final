@@ -5,49 +5,38 @@ export const LOGIN_MUTATION = gql`
     login(data: $data) {
       username
       identity
+      token
     }
   }
 `;
 
 export const CREATE_USER_MUTATION = gql`
   mutation createUser($data: UserInput!) {
-    signup(data: $data) {
-      username
-      identity
-    }
+    createUser(data: $data)
   }
 `;
 
 export const DELETE_USER_MUTATION = gql`
   mutation deleteUser($username: String!) {
-    deleteUser(username: $username) {
-      username
-      identity
-    }
+    deleteUser(username: $username)
   }
 `;
 
 export const CHANGE_USERNAME_MUTATION = gql`
-  mutation updateUserUsername($data: UserInput!, $newUsername: String!) {
-    updateUserUsername(data: $data, newUsername: $newUsername) {
-      username
-      identity
-    }
+  mutation updateUserUsername($auth: UserInput!, $newUsername: String!) {
+    updateUserUsername(auth: $auth, newUsername: $newUsername)
   }
 `;
 
 export const CHANGE_PASSWORD_MUTATION = gql`
-  mutation updateUserPassword($data: UserInput!, $newPassword: String!) {
-    updateUserPassword(data: $data, newPassword: $newPassword) {
-      username
-      identity
-    }
+  mutation updateUserPassword($auth: UserInput!, $newPassword: String!) {
+    updateUserPassword(auth: $auth, newPassword: $newPassword)
   }
 `;
 
 export const CREATE_APPOINTMENT_MUTATION = gql`
-  mutation createAppointment($data: CreatAppointmentInput!, $auth: UserInput!) {
-    createAppointment(data: $data, auth: $auth) {
+  mutation createAppointment($data: CreatAppointmentInput!) {
+    createAppointment(data: $data) {
       date
       patient {
         username
@@ -60,8 +49,8 @@ export const CREATE_APPOINTMENT_MUTATION = gql`
 `;
 
 export const DELETE_APPOINTMENT_MUTATION = gql`
-  mutation deleteAppointment($date: String!, $auth: UserInput!) {
-    deleteAppointment(date: $date, auth: $auth) {
+  mutation deleteAppointment($date: String!) {
+    deleteAppointment(date: $date) {
       date
       patient {
         username
@@ -74,8 +63,8 @@ export const DELETE_APPOINTMENT_MUTATION = gql`
 `;
 
 export const CREATE_RECORD_MUTATION = gql`
-  mutation createRecord($data: CreateRecordInput!, $auth: UserInput!) {
-    createRecord(data: $data, auth: $auth) {
+  mutation createRecord($data: CreateRecordInput!) {
+    createRecord(data: $data) {
       date
       part
       level

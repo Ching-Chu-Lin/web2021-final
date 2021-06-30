@@ -253,7 +253,7 @@ const Mutation = {
       }).save();
       // push to patient
       patient.records.push(record);
-      patients.records.sort((a, b) => moment(a.date) - moment(b.date));
+      patient.records.sort((a, b) => moment(a.date) - moment(b.date));
       await patient.save();
       return record;
     } else {
