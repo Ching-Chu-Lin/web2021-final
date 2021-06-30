@@ -174,20 +174,20 @@ const Mutation = {
     if (!open) throw new Error("No service today");
 
     // if exist appointment, then update
-    const appoint = await db.AppointmentModel.findOneAndUpdate(
+    let appoint;
+    appoint = await db.AppointmentModel.findOneAndUpdate(
       { patient: request.user, date: data.date },
       { part: data.part, level: data.level, description: data.description },
       { new: true } // return updated
     );
 
-    if (!appoint) {
+    if (!appoint)
       // create appointment instance
-      return await new db.AppointmentModel({
+      appoint = await new db.AppointmentModel({
         ...data, // date, part, level, description
         id: uuidv4(),
         patient: request.user,
       }).save();
-    }
 
     // notify subscription
     pubsub.publish(`appointment ${data.date}`, {
