@@ -48,9 +48,7 @@ const OpendayModal = ({ visible, onCancel }) => {
       title="服務時間"
       footer={createFooter()}
       onCancel={onCancel}
-      // onOk={onOk}
     >
-      {console.log(opendays)}
       {opendays && opendays.map((day) => <OpendayForm day={day} />)}
     </Modal>
   );
