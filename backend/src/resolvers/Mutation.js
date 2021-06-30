@@ -285,8 +285,16 @@ const Mutation = {
     console.log("resolvers/Mutation/createOpenday");
     // weekday: type of string
     const existing = await db.OpendayModel.findOne({ weekday: args.weekday });
-    if (existing) throw new Error(args.weekday + " already open");
 
+    // if exist, then update
+    if (existing)
+      return await db.OpendayModel.findOneAndUpdate(
+        { weekday: args.weekday },
+        { ...data },
+        { new: true } // return updated
+      );
+
+    // no existence, create
     const openday = await new db.OpendayModel({ ...args }).save();
     return openday;
   },
