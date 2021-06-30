@@ -15,7 +15,7 @@ import App from "./containers/App";
 import reportWebVitals from "./reportWebVitals";
 import "antd/dist/antd.css";
 import { LOGIN_MUTATION } from "./graphql";
-import AuthContext from "./context/auth-context"
+import AuthContext from "./context/AuthContext"
 
 const backend = process.env.REACT_APP_BACKEND_URL;
 

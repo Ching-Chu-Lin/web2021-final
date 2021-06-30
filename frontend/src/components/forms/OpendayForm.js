@@ -1,4 +1,4 @@
-import { Form, Input, Button, Radio } from "antd";
+import { Form, Input, Button, Radio , Modal } from "antd";
 import { useState, useContext } from "react";
 import { useMutation } from "@apollo/react-hooks";
 import AuthContext from "../../context/AuthContext";
@@ -53,7 +53,7 @@ const OpendayForm = ({ day }) => {
 
   const [deleteOpenday] = useMutation(DELETE_OPENDAY_MUTATION);
 
-  const onOk = () => {
+  const onConfirm = () => {
     form.validateFields().then(async ({ open, doctor }) => {
       if (open) {
         await createOpenday({
@@ -82,10 +82,24 @@ const OpendayForm = ({ day }) => {
     setReadOnly(false);
   };
 
+  const { confirm } = Modal;
+  const showConfirm = () => {
+    confirm({
+      title: "確定修改？",
+      onOk(){
+        onConfirm();
+      },
+      onCancel(){
+
+      },
+    });
+  }
+
   return (
     <Form
       form={form}
       name="openday_form"
+      style={{padding: "10px"}}
       layout="inline"
       initialValues={{ open, doctor: day.doctor || "" }}
       onValuesChange={onOpenChange}
@@ -130,7 +144,7 @@ const OpendayForm = ({ day }) => {
             修改
           </Button>
         ) : (
-          <Button key="modify" type="primary" onClick={onOk}>
+          <Button key="modify" type="primary" onClick={showConfirm}>
             送出
           </Button>
         )}
