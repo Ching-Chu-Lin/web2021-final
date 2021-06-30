@@ -25,6 +25,17 @@ const AppointmentModal = ({
 
   const [readOnly, setReadOnly] = useState(isReadOnly(mode));
 
+  const { confirm } = Modal;
+  const showConfirm = () => {
+    confirm({
+      title: "確定刪除？",
+      onOk(){
+        onDelete();
+      },
+      onCancel(){}
+    })
+  }
+
   const onOk = () => {
     form.validateFields().then((values) => {
       // form.resetFields();
@@ -77,7 +88,7 @@ const AppointmentModal = ({
               送出修改
             </Button>
           ),
-          <Button style={{borderRadius: "5px"}} key="delete" type="danger" onClick={onDelete}>
+          <Button style={{borderRadius: "5px"}} key="delete" type="danger" onClick={showConfirm}>
             刪除預約
           </Button>,
           <Button
