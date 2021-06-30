@@ -5,6 +5,7 @@ import {
   InMemoryCache,
   ApolloProvider,
   HttpLink,
+  useMutation,
 } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 import { split } from "apollo-link";
@@ -15,8 +16,9 @@ import App from "./containers/App";
 import { AUTH_TOKEN } from "./constants";
 import reportWebVitals from "./reportWebVitals";
 import "antd/dist/antd.css";
+import AuthContext from "./context/auth-context"
 
-const backend = "localhost:5000/";
+const backend = "localhost:8888/";
 // Create an http link:
 const httpLink = new HttpLink({
   uri: `http://${backend}`,
@@ -42,6 +44,8 @@ const link = split(
 );
 
 const authLink = setContext((_, { headers }) => {
+  const [login, {data}] = useMutation();
+  console.log(data);
   const token = localStorage.getItem(AUTH_TOKEN);
   return {
     headers: {

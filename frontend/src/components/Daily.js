@@ -88,7 +88,7 @@ const Daily = ({ user, date }) => {
   ) : (
     <GridListTile key={date} className={classes.futureDateTile}>
       <p style={{position: "absolute",top: "5%", left: "0", right: "0", margin: "auto"}}>{thisDay.format("MM/DD")}</p>
-      <p style={{position: "absolute",top: "40%", left: "0", right: "0", margin: "auto"}}>物治學生：{dailyData.doctor}</p>
+      <p style={{position: "absolute",top: "25%", left: "0", right: "0", margin: "auto"}}>今日物治：{dailyData.doctor}</p>
       <p style={{position: "absolute",top: "80%", left: "0", right: "0", margin: "auto"}}>目前預約人數：{dailyData.numbers}</p>
       {user.identity === "patient" ? (
         dailyData.appointments.length > 0 &&
@@ -96,7 +96,7 @@ const Daily = ({ user, date }) => {
           <>
             <Button
               type="primary"
-              style={{ background: "rgb(7, 181, 59)" , position: "absolute",top: "60%", left: "0", right: "0", margin: "auto"}}
+              style={{ background: "rgb(7, 181, 59)" , position: "absolute",top: "60%", left: "0", right: "0", margin: "auto", borderRadius: "5px"}}
               onClick={() => {
                 setModalVisible(true);
               }}
@@ -137,7 +137,7 @@ const Daily = ({ user, date }) => {
           <>
             <Button
               type="primary"
-              style={{position: "absolute",top: "60%", left: "0", right: "0", margin: "auto"}}
+              style={{position: "absolute",top: "60%", left: "0", right: "0", margin: "auto", borderRadius: "5px"}}
               onClick={() => {
                 setModalVisible(true);
               }}
@@ -169,7 +169,7 @@ const Daily = ({ user, date }) => {
         <>
           <Button
             type="primary"
-            style={{position: "absolute",top: "60%", left: "0", right: "0", margin: "auto"}}
+            style={{position: "absolute",top: "60%", left: "0", right: "0", margin: "auto", borderRadius: "5px"}}
             onClick={() => {
               setModalVisible(true);
             }}

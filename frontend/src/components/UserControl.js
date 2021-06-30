@@ -55,7 +55,14 @@ const UserControl = ({ user, setUser }) => {
       {isLogin(user) ? (
         <div>
           <div style={{position: "absolute", width: "100%" }}>姓名：{user.username}</div>
-          <Button style={{position: "absolute", left: "33%", top: "6%"}} type="primary" onClick={logout}>
+          <Button 
+            style={{position: "absolute", left: "33%", top: "6%", borderRadius: "5px", 
+            borderColor: "#D9A3A9",
+            background: "-webkit-gradient(linear, left top, left bottom, from(#D9A3A9), to(#FF0000))",
+            }} 
+            type="primary" 
+            onClick={logout}
+          >
             登出
           </Button>
           <Menu mode="inline" style={{position: "absolute", left: "0%", top: "13%"}}>
@@ -113,6 +120,7 @@ const UserControl = ({ user, setUser }) => {
         <>
           <Button
             type="primary"
+            style={{borderRadius: "5px"}}
             onClick={() => {
               setLoginModalVisible(true);
             }}

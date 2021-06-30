@@ -45,7 +45,7 @@ const Calendar = ({ user }) => {
       <GridList cellHeight={50} cols={7} className={classes.header}>
         {weekdayName.map((e) => (
           <GridListTile className={classes.headerTile}>
-            <span style={{position: "absolute",top: "10%", left: "0", right: "0", margin: "auto"}}>{e}</span>
+            <span style={{position: "absolute",top: "25%", left: "0", right: "0", margin: "auto"}}>{e}</span>
           </GridListTile>
         ))}
       </GridList>

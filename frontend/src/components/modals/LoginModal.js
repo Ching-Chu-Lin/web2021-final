@@ -45,13 +45,13 @@ const LoginModal = ({ visible, onCreate, onCancel }) => {
 
   const createFooter = () => {
     return [
-      <Button key="login" type="primary" onClick={onOk}>
+      <Button style={{borderRadius: "5px"}} key="login" type="primary" onClick={onOk}>
         登入
       </Button>,
-      <Button key="forget" type="danger" onClick={onForgetPassword}>
+      <Button style={{borderRadius: "5px"}} key="forget" type="danger" onClick={onForgetPassword}>
         忘記密碼
       </Button>,
-      <Button key="cancel" onClick={onCancel}>
+      <Button style={{borderRadius: "5px"}} key="cancel" onClick={onCancel}>
         取消
       </Button>,
     ];

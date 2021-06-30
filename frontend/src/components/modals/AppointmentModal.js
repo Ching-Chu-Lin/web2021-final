@@ -59,28 +59,29 @@ const AppointmentModal = ({
     switch (mode) {
       case "create":
         return [
-          <Button key="create" type="primary" onClick={onOk}>
+          <Button style={{borderRadius: "5px"}} key="create" type="primary" onClick={onOk}>
             預約
           </Button>,
-          <Button key="cancel" onClick={onCancel}>
+          <Button style={{borderRadius: "5px"}} key="cancel" onClick={onCancel}>
             取消
           </Button>,
         ];
       case "modify":
         return [
           readOnly ? (
-            <Button key="modify" type="primary" onClick={onEdit}>
+            <Button style={{borderRadius: "5px"}} key="modify" type="primary" onClick={onEdit}>
               修改預約
             </Button>
           ) : (
-            <Button key="modify" type="primary" onClick={onOk}>
+            <Button style={{borderRadius: "5px"}} key="modify" type="primary" onClick={onOk}>
               送出修改
             </Button>
           ),
-          <Button key="delete" type="danger" onClick={onDelete}>
+          <Button style={{borderRadius: "5px"}} key="delete" type="danger" onClick={onDelete}>
             刪除預約
           </Button>,
           <Button
+            style={{borderRadius: "5px"}}
             key="cancel"
             onClick={() => {
               onCancel();
