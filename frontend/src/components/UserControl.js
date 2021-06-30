@@ -1,5 +1,5 @@
 import { Button, Menu } from "antd";
-import { useState, useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useQuery, useLazyQuery, useMutation } from "@apollo/react-hooks";
 import AuthContext from "../context/AuthContext";
 import LoginModal from "./modals/LoginModal";
@@ -16,6 +16,7 @@ import {
   DELETE_USER_MUTATION,
   CHANGE_USERNAME_MUTATION,
   CHANGE_PASSWORD_MUTATION,
+  PATIENT_RECORD_SUBSCRIPTION,
 } from "../graphql";
 
 const UserControl = ({ user, setUser }) => {
@@ -49,10 +50,29 @@ const UserControl = ({ user, setUser }) => {
 
   const [
     getRecord,
-    { loading, error, data: { queryUserRecords: records } = {} },
+    {
+      loading,
+      error,
+      data: { queryUserRecords: records } = {},
+      subscribeToMore,
+      refetch,
+    },
   ] = useLazyQuery(USER_RECORDS_QUERY, {
     context: { headers: { authorization: token ? `Bearer ${token}` : "" } },
   });
+
+  useEffect(() => {
+    try {
+      subscribeToMore({
+        document: PATIENT_RECORD_SUBSCRIPTION,
+        variables: { patientName: user ? user.username : "" },
+        updateQuery: (prev) => {
+          refetch();
+          return prev;
+        },
+      });
+    } catch (e) {}
+  }, [subscribeToMore, refetch]);
 
   const [currentRecord, setCurrentRecord] = useState({});
 
@@ -79,6 +99,7 @@ const UserControl = ({ user, setUser }) => {
 
   return (
     <div>
+      {console.log(error)}
       {isLogin(user) ? (
         <div>
           <div style={{ position: "absolute", width: "100%" }}>

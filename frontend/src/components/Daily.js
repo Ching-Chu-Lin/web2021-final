@@ -10,6 +10,7 @@ import {
   APPOINTMENT_QUERY,
   CREATE_APPOINTMENT_MUTATION,
   DELETE_APPOINTMENT_MUTATION,
+  APPOINTMENT_SUBSCRIPTION,
 } from "../graphql";
 
 const Daily = ({ user, date }) => {
@@ -59,7 +60,21 @@ const Daily = ({ user, date }) => {
     },
   });
 
+  useEffect(() => {
+    subscribeToMore({
+      document: APPOINTMENT_SUBSCRIPTION,
+      variables: { date },
+      updateQuery: (prev) => {
+        console.log(prev);
+        refetch();
+        return prev;
+      },
+    });
+  }, [subscribeToMore, refetch]);
+
   useEffect(() => refetch(), [token]);
+
+  useEffect(() => console.log(dailyData), [dailyData]);
 
   const [makeAppointment] = useMutation(CREATE_APPOINTMENT_MUTATION);
 
@@ -67,7 +82,7 @@ const Daily = ({ user, date }) => {
 
   return (
     <>
-      {console.log(error)}
+      {error && console.log(error)}
       {thisDay < moment().startOf("day") ? (
         <GridListTile key={date} className={classes.passedDateTile}>
           <p
@@ -183,6 +198,8 @@ const Daily = ({ user, date }) => {
                         },
                       },
                     });
+                    console.log("appointment");
+                    refetch();
                     setModalVisible(false);
                   }}
                   onCancel={() => {
@@ -230,6 +247,8 @@ const Daily = ({ user, date }) => {
                         },
                       },
                     });
+                    console.log("appointment");
+                    refetch();
                     setModalVisible(false);
                   }}
                   onCancel={() => {

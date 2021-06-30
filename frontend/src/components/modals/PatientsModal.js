@@ -1,9 +1,13 @@
 import { Modal, Layout, Menu, Form, Button } from "antd";
-import { useState, useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useQuery, useMutation } from "@apollo/react-hooks";
 import RecordForm from "../forms/RecordForm";
 import AuthContext from "../../context/AuthContext";
-import { DAILY_USER_RECORD_QUERY, CREATE_RECORD_MUTATION } from "../../graphql";
+import {
+  DAILY_USER_RECORD_QUERY,
+  CREATE_RECORD_MUTATION,
+  PATIENT_RECORD_DATE_SUBSCRIPTION,
+} from "../../graphql";
 
 const PatientsModal = ({
   visible,
@@ -44,6 +48,17 @@ const PatientsModal = ({
     variables: { date, patientName: currentPatient },
     context: { headers: { authorization: token ? `Bearer ${token}` : "" } },
   });
+
+  useEffect(() => {
+    subscribeToMore({
+      document: PATIENT_RECORD_DATE_SUBSCRIPTION,
+      variables: { date, patientName: currentPatient },
+      updateQuery: (prev) => {
+        refetch();
+        return prev;
+      },
+    });
+  }, [subscribeToMore, refetch]);
 
   const [saveRecord] = useMutation(CREATE_RECORD_MUTATION);
 
@@ -94,6 +109,7 @@ const PatientsModal = ({
       onCancel={onCancel}
       onOk={onOk}
     >
+      {console.log(error)}
       <Layout>
         <Sider width="20%" theme="light">
           <Menu mode="inline">
