@@ -6,8 +6,8 @@
   "author": "Ching-Chu-Lin <b06902111@ntu.edu.tw>",
   "license": "MIT",
   "scripts": {
-    "build": "cd backend/; npm install",
-    "start": "cd backend/; npm run server",
+    "build": "npm install",
+    "start": "npm run server",
     "heroku-prebuild": "cd backend/"
   }
 }
