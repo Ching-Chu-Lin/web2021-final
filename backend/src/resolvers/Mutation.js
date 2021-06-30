@@ -161,7 +161,7 @@ const Mutation = {
   /**
    * Appointment
    */
-  async createAppointment(parent, { data: args }, { db, request }, info) {
+  async createAppointment(parent, { data }, { db, request, pubsub }, info) {
     console.log("resolvers/Mutation/createAppointment");
     if (!request.user) throw new Error("Unauthenticated operation");
     if (request.user.identity !== "patient")
@@ -169,29 +169,34 @@ const Mutation = {
 
     // check opendays
     const open = await db.OpendayModel.findOne({
-      weekday: WEEKDAY_DICT[moment(args.date).weekday()],
+      weekday: WEEKDAY_DICT[moment(data.date).weekday()],
     });
     if (!open) throw new Error("No service today");
 
     // if exist appointment, then update
     const appoint = await db.AppointmentModel.findOneAndUpdate(
-      { patient: request.user, date: args.date },
-      { part: args.part, level: args.level, description: args.description },
+      { patient: request.user, date: data.date },
+      { part: data.part, level: data.level, description: data.description },
       { new: true } // return updated
     );
 
     if (!appoint) {
       // create appointment instance
       return await new db.AppointmentModel({
-        ...args, // date, part, level, description
+        ...data, // date, part, level, description
         id: uuidv4(),
         patient: request.user,
       }).save();
     }
 
+    // notify subscription
+    pubsub.publish(`appointment ${data.date}`, {
+      appointment: "CREATE_APPOINTMENT",
+    });
+
     return appoint;
   },
-  async deleteAppointment(parent, { date }, { db, request }, info) {
+  async deleteAppointment(parent, { date }, { db, request, pubsub }, info) {
     console.log("resolvers/Mutation/deleteAppointment");
     if (!request.user) throw new Error("Unauthenticated operation");
     if (request.user.identity !== "patient")
@@ -203,6 +208,11 @@ const Mutation = {
     });
     if (!appoint) throw new Error("Appointment not exist");
 
+    // notify subscription
+    pubsub.publish(`appointment ${date}`, {
+      appointment: "DELETE_APPOINTMENT",
+    });
+
     return await db.AppointmentModel.findOneAndDelete({
       patient: request.user,
       date,
@@ -213,7 +223,7 @@ const Mutation = {
    * Record
    */
 
-  async createRecord(parent, { data: args }, { db, request }, info) {
+  async createRecord(parent, { data: args }, { db, request, pubsub }, info) {
     if (!request.user) throw new Error("Unauthenticated operation");
     if (request.user.identity !== "doctor")
       throw new Error("Only doctors can create / update record");
@@ -243,7 +253,7 @@ const Mutation = {
       }).save();
       // push to patient
       patient.records.push(record);
-      patients.records.sort((a, b) => moment(a.date) - moment(b.date));
+      patient.records.sort((a, b) => moment(a.date) - moment(b.date));
       await patient.save();
       return record;
     } else {
@@ -253,6 +263,17 @@ const Mutation = {
         { ...recordData },
         { new: true } // return updated
       );
+
+      // notify subscription
+      pubsub.publish(`recordPatientName ${args.patientName}`, {
+        recordPatientName: "CREATE_RECORD",
+      });
+
+      // notify subscription
+      pubsub.publish(`recordPatientNameDate ${args.patientName} ${args.date}`, {
+        recordPatientNameDate: "CREATE_RECORD",
+      });
+
       return record;
     }
   },

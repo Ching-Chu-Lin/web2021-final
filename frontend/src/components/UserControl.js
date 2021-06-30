@@ -1,6 +1,7 @@
 import { Button, Menu } from "antd";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { useQuery, useLazyQuery, useMutation } from "@apollo/react-hooks";
+import AuthContext from "../context/AuthContext";
 import LoginModal from "./modals/LoginModal";
 import ChangeUsernameModal from "./modals/ChangeUsernameModal";
 import ChangePasswordModal from "./modals/ChangePasswordModal";
@@ -18,6 +19,8 @@ import {
 } from "../graphql";
 
 const UserControl = ({ user, setUser }) => {
+  const [token, setToken] = useContext(AuthContext);
+
   const { SubMenu } = Menu;
 
   const [loginModalVisible, setLoginModalVisible] = useState(false);
@@ -40,13 +43,16 @@ const UserControl = ({ user, setUser }) => {
   //   data: { queryUserRecords: records } = {},
   //   subscribeToMore,
   // } = useQuery(USER_RECORDS_QUERY, {
-  //   variables: { patientName: user ? user.username : "", auth: user },
+  //   variables: { patientName: user ? user.username : "" },
+  //   context: { headers: { authorization: token ? `Bearer ${token}` : "" },
   // });
 
   const [
     getRecord,
     { loading, error, data: { queryUserRecords: records } = {} },
-  ] = useLazyQuery(USER_RECORDS_QUERY);
+  ] = useLazyQuery(USER_RECORDS_QUERY, {
+    context: { headers: { authorization: token ? `Bearer ${token}` : "" } },
+  });
 
   const [currentRecord, setCurrentRecord] = useState({});
 
@@ -104,8 +110,13 @@ const UserControl = ({ user, setUser }) => {
                     onCreate={async (info) => {
                       await changeUsername({
                         variables: {
-                          data: user,
+                          auth: { password: info.password, ...user },
                           newUsername: info.newUsername,
+                        },
+                        context: {
+                          headers: {
+                            authorization: token ? `Bearer ${token}` : "",
+                          },
                         },
                       });
                       setCnameModalVisible(false);
@@ -126,7 +137,15 @@ const UserControl = ({ user, setUser }) => {
                 user={user}
                 onCreate={async (info) => {
                   await changePassword({
-                    variables: { data: user, newPassword: info.newPassword },
+                    variables: {
+                      auth: { password: info.oldPassword, ...user },
+                      newPassword: info.newPassword,
+                    },
+                    context: {
+                      headers: {
+                        authorization: token ? `Bearer ${token}` : "",
+                      },
+                    },
                   });
                   setCpModalVisible(false);
                   logout();
@@ -140,7 +159,12 @@ const UserControl = ({ user, setUser }) => {
                 title="我的病歷"
                 onTitleClick={async () => {
                   await getRecord({
-                    variables: { patientName: user.username, auth: user },
+                    variables: { patientName: user.username },
+                    context: {
+                      headers: {
+                        authorization: token ? `Bearer ${token}` : "",
+                      },
+                    },
                   });
                 }}
               >
@@ -177,7 +201,12 @@ const UserControl = ({ user, setUser }) => {
                   identity={user.identity}
                   onCreate={async (user) => {
                     await createUser({
-                      variables: { date: user },
+                      variables: { data: user },
+                      context: {
+                        headers: {
+                          authorization: token ? `Bearer ${token}` : "",
+                        },
+                      },
                     });
                     setCreateModalVisible(false);
                   }}
@@ -193,8 +222,13 @@ const UserControl = ({ user, setUser }) => {
                   visible={deleteModalVisible}
                   identity={user.identity}
                   onCreate={async (username) => {
-                    await createUser({
+                    await deleteUser({
                       variables: { username },
+                      context: {
+                        headers: {
+                          authorization: token ? `Bearer ${token}` : "",
+                        },
+                      },
                     });
                     setDeleteModalVisible(false);
                   }}
@@ -233,8 +267,11 @@ const UserControl = ({ user, setUser }) => {
             visible={loginModalVisible}
             onCreate={async (user) => {
               const userReturn = await login({ variables: { data: user } });
-              // console.log(userReturn.data.login);
-              setUser(user);
+              setUser({
+                username: userReturn.data.login.username,
+                identity: userReturn.data.login.identity,
+              });
+              setToken(userReturn.data.login.token);
               setLoginModalVisible(false);
             }}
             onCancel={() => {

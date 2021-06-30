@@ -13,6 +13,9 @@ export const authenticate = async (resolve, root, args, context, info) => {
   return result;
   */
 
+  // subscription
+  if (!context.request) return await resolve(root, args, context, info);
+
   const authHeader = context.request.get("Authorization");
   if (!authHeader) return await resolve(root, args, context, info);
 

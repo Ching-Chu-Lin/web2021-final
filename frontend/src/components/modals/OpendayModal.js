@@ -1,20 +1,12 @@
 import { Modal, Form, Input, Radio, Button } from "antd";
+import { useEffect, useContext } from "react";
+import { useQuery } from "@apollo/react-hooks";
 import OpendayForm from "../forms/OpendayForm";
+import AuthContext from "../../context/AuthContext";
+import { OPENDAY_QUERY } from "../../graphql";
 
 const OpendayModal = ({ visible, onCancel }) => {
-  // const [form] = Form.useForm();
-
-  // const onOk = () => {
-  //   form.validateFields().then((value) => {
-  //     onCreate(value);
-  //   });
-  //   // .catch((e) => {
-  //   //   displayStatus({
-  //   //     type: "error",
-  //   //     msg: e.message,
-  //   //   });
-  //   // });
-  // };
+  const [token, setToken] = useContext(AuthContext);
 
   const createFooter = () => {
     return [
@@ -24,15 +16,31 @@ const OpendayModal = ({ visible, onCancel }) => {
     ];
   };
 
-  const opendays = [
-    { weekday: "SUNDAY", doctor: "" },
-    { weekday: "MONDAY", doctor: "1" },
-    { weekday: "TUESDAY", doctor: "2" },
-    { weekday: "WEDNESDAY", doctor: "3" },
-    { weekday: "THURSDAY", doctor: "4" },
-    { weekday: "FRIDAY", doctor: "5" },
-    { weekday: "SATURDAY", doctor: "" },
-  ];
+  const {
+    loading,
+    error,
+    data: { queryOpenday: opendays } = {},
+    subscribeToMore,
+    refetch,
+  } = useQuery(OPENDAY_QUERY, {
+    context: {
+      headers: {
+        authorization: token ? `Bearer ${token}` : "",
+      },
+    },
+  });
+
+  useEffect(() => refetch(), [token]);
+
+  // const opendays = [
+  //   { weekday: "SUNDAY", doctor: "" },
+  //   { weekday: "MONDAY", doctor: "1" },
+  //   { weekday: "TUESDAY", doctor: "2" },
+  //   { weekday: "WEDNESDAY", doctor: "3" },
+  //   { weekday: "THURSDAY", doctor: "4" },
+  //   { weekday: "FRIDAY", doctor: "5" },
+  //   { weekday: "SATURDAY", doctor: "" },
+  // ];
 
   return (
     <Modal
@@ -42,51 +50,8 @@ const OpendayModal = ({ visible, onCancel }) => {
       onCancel={onCancel}
       // onOk={onOk}
     >
-      {opendays.map((day) => (
-        <OpendayForm day={day} />
-      ))}
-      {/* <Form form={form} name="form_in_modal" initialValues={{ identity }}>
-        <Form.Item
-          name="username"
-          label="帳號"
-          rules={[
-            {
-              required: true,
-              message: "請輸入帳號",
-            },
-          ]}
-        >
-          <Input />
-        </Form.Item>
-
-        <Form.Item
-          name="password"
-          label="密碼"
-          rules={[
-            {
-              required: true,
-              message: "請輸入密碼",
-            },
-          ]}
-        >
-          <Input.Password />
-        </Form.Item>
-        <Form.Item
-          name="identity"
-          label="登入身份"
-          rules={[
-            {
-              required: true,
-              message: "請選擇身份",
-            },
-          ]}
-        >
-          <Radio.Group disabled={true}>
-            <Radio value="patient">校隊學生</Radio>
-            <Radio value="doctor">物治學生</Radio>
-          </Radio.Group>
-        </Form.Item>
-      </Form> */}
+      {console.log(opendays)}
+      {opendays && opendays.map((day) => <OpendayForm day={day} />)}
     </Modal>
   );
 };
