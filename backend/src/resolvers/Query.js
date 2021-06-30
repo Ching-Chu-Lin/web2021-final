@@ -4,7 +4,13 @@ import { WEEKDAY_DICT } from "../utils";
 const Query = {
   async queryOpenday(parent, args, { db }, info) {
     console.log("resolvers/Query/queryOpenday");
-    return await db.OpendayModel.find();
+    const opendays = await db.OpendayModel.find();
+    const wholeWeek = Object.values(WEEKDAY_DICT).map((day) => {
+      const openday = opendays.find((element) => element.weekday === day);
+      if (!openday) return { weekday: day, doctor: "" };
+      return openday;
+    });
+    return wholeWeek;
   },
 
   async queryUserRecords(parent, { patientName }, { db, request }, info) {
