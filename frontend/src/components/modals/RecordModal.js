@@ -35,7 +35,11 @@ const RecordModal = ({ visible, mode, record, onCreate, onCancel }) => {
     switch (mode) {
       case "view":
         return [
-          <Button key="close" onClick={onCancel}>
+          <Button 
+            style={{borderRadius: "5px"}}
+            key="close" 
+            onClick={onCancel}
+          >
             關閉
           </Button>,
         ];

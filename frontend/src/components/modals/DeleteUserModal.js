@@ -4,10 +4,19 @@ import { useState } from "react";
 const DeleteUserModal = ({ visible, identity, onCreate, onCancel }) => {
   const [form] = Form.useForm();
 
-  const onOk = () => {
-    form.validateFields().then((value) => {
-      onCreate(value);
-    });
+  const { confirm } = Modal;
+  const showConfirm = () => {
+    confirm({
+      title: "確定刪除？",
+      onOk(){
+        form.validateFields().then((value) => {
+          onCreate(value);
+        });
+      }
+    })
+    //form.validateFields().then((value) => {
+      //onCreate(value);
+    //});
     // .catch((e) => {
     //   displayStatus({
     //     type: "error",
@@ -18,7 +27,7 @@ const DeleteUserModal = ({ visible, identity, onCreate, onCancel }) => {
 
   const createFooter = () => {
     return [
-      <Button key="login" type="danger" onClick={onOk}>
+      <Button key="login" type="danger" onClick={showConfirm}>
         確定
       </Button>,
       <Button key="cancel" onClick={onCancel}>
@@ -33,7 +42,7 @@ const DeleteUserModal = ({ visible, identity, onCreate, onCancel }) => {
       title="刪除使用者"
       footer={createFooter()}
       onCancel={onCancel}
-      onOk={onOk}
+      onOk={showConfirm}
     >
       <Form form={form} name="delete_user_form" initialValues={{ identity }}>
         <Form.Item

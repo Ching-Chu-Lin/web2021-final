@@ -256,6 +256,7 @@ const UserControl = ({ user, setUser }) => {
         <>
           <Button
             type="primary"
+            style={{borderRadius: "5px"}}
             onClick={() => {
               setLoginModalVisible(true);
             }}
