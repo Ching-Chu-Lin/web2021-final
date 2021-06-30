@@ -156,6 +156,7 @@ const Daily = ({ user, date }) => {
                 left: "0",
                 right: "0",
                 margin: "auto",
+                borderRadius: "5px",
               }}
               onClick={() => {
                 setModalVisible(true);
@@ -205,6 +206,7 @@ const Daily = ({ user, date }) => {
                 left: "0",
                 right: "0",
                 margin: "auto",
+                borderRadius: "5px"
               }}
               onClick={() => {
                 setModalVisible(true);
@@ -242,6 +244,7 @@ const Daily = ({ user, date }) => {
               left: "0",
               right: "0",
               margin: "auto",
+              borderRadius: "5px"
             }}
             onClick={() => {
               setModalVisible(true);

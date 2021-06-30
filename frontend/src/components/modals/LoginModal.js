@@ -51,7 +51,7 @@ const LoginModal = ({ visible, onCreate, onCancel }) => {
       // <Button key="forget" type="danger" onClick={onForgetPassword}>
       //   忘記密碼
       // </Button>,
-      <Button key="cancel" onClick={onCancel}>
+      <Button style={{borderRadius: "5px"}} key="cancel" onClick={onCancel}>
         取消
       </Button>,
     ];
