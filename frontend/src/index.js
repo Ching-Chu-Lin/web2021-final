@@ -18,12 +18,12 @@ const backend = process.env.REACT_APP_BACKEND_URL;
 
 // Create an http link:
 const httpLink = new HttpLink({
-  uri: `http://${backend}`,
+  uri: `https://${backend}`,
 });
 
 // Create a WebSocket link:
 const wsLink = new WebSocketLink({
-  uri: `ws://${backend}`,
+  uri: `wss://${backend}`,
   options: { reconnect: false },
 });
 
