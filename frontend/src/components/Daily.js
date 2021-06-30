@@ -190,7 +190,7 @@ const Daily = ({ user, date }) => {
                   mode="modify"
                   appointment={dailyData.appointments[0]}
                   onCreate={async (appointment) => {
-                    const appointmentReturn = await makeAppointment({
+                    await makeAppointment({
                       variables: { data: { date, ...appointment } },
                       context: {
                         headers: {
@@ -198,8 +198,8 @@ const Daily = ({ user, date }) => {
                         },
                       },
                     });
-                    console.log("appointment");
-                    refetch();
+                    // console.log("appointment");
+                    // refetch();
                     setModalVisible(false);
                   }}
                   onCancel={() => {
@@ -247,8 +247,8 @@ const Daily = ({ user, date }) => {
                         },
                       },
                     });
-                    console.log("appointment");
-                    refetch();
+                    // console.log("appointment");
+                    // refetch();
                     setModalVisible(false);
                   }}
                   onCancel={() => {
@@ -279,15 +279,9 @@ const Daily = ({ user, date }) => {
                 mode="modify"
                 date={date}
                 appointments={dailyData.appointments || []}
-                // onCreate={async (record) => {
-                //   await saveRecord({
-                //     variables: { data: { date, ...record }, auth: user },
-                //   });
-                // }}
                 onCancel={() => {
                   setModalVisible(false);
                 }}
-                user={user} // only for authentication
               />
             </>
           ) : (

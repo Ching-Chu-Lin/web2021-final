@@ -5,7 +5,6 @@ import {
   InMemoryCache,
   ApolloProvider,
   HttpLink,
-  useMutation,
 } from "@apollo/client";
 import { split } from "apollo-link";
 import { WebSocketLink } from "apollo-link-ws";
@@ -14,8 +13,6 @@ import "./index.css";
 import App from "./containers/App";
 import reportWebVitals from "./reportWebVitals";
 import "antd/dist/antd.css";
-import { LOGIN_MUTATION } from "./graphql";
-import AuthContext from "./context/AuthContext"
 
 const backend = process.env.REACT_APP_BACKEND_URL;
 
@@ -43,18 +40,7 @@ const link = split(
   httpLink
 );
 
-// const authLink = setContext((_, { headers }) => {
-//   const token = localStorage.getItem(AUTH_TOKEN);
-//   return {
-//     headers: {
-//       ...headers,
-//       authorization: token ? `Bearer ${token}` : "",
-//     },
-//   };
-// });
-
 const client = new ApolloClient({
-  // link: authLink.concat(link),
   link,
   cache: new InMemoryCache().restore({}),
 });
