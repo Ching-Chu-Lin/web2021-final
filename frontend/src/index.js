@@ -16,6 +16,7 @@ import App from "./containers/App";
 import { AUTH_TOKEN } from "./constants";
 import reportWebVitals from "./reportWebVitals";
 import "antd/dist/antd.css";
+import { LOGIN_MUTATION } from "./graphql";
 import AuthContext from "./context/auth-context"
 
 const backend = process.env.REACT_APP_BACKEND_URL;
@@ -45,8 +46,6 @@ const link = split(
 );
 
 const authLink = setContext((_, { headers }) => {
-  const [login, {data}] = useMutation();
-  console.log(data);
   const token = localStorage.getItem(AUTH_TOKEN);
   return {
     headers: {
