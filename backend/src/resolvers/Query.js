@@ -1,19 +1,20 @@
 import moment from "moment";
-import { WEEKDAY_DICT, checkUserIdentity } from "../utils";
+import { WEEKDAY_DICT } from "../utils";
 
 const Query = {
-  async queryOpenday(parent, args, { db, pubsub }, info) {
+  async queryOpenday(parent, args, { db }, info) {
     console.log("resolvers/Query/queryOpenday");
     return await db.OpendayModel.find();
   },
 
-  async queryUserRecords(parent, { patientName, auth }, { db, pubsub }, info) {
+  async queryUserRecords(parent, { patientName }, { db, request }, info) {
     console.log("resolvers/Query/queryUserRecords");
-
-    const user = await checkUserIdentity(auth, db);
-
-    // doctor & oneself
-    if (user.identity !== "doctor" && user.username !== patientName)
+    if (!request.user) throw new Error("Unauthenticated operation");
+    if (
+      request.user.identity !== "doctor" &&
+      request.user.username !== patientName
+    )
+      // doctor & oneself
       throw new Error("Only doctor and patient oneself can see one's record");
 
     // patient exist
@@ -35,16 +36,17 @@ const Query = {
 
   async queryUserRecordsByDate(
     parent,
-    { patientName, date, auth },
-    { db, pubsub },
+    { patientName, date },
+    { db, request },
     info
   ) {
     console.log("resolvers/Query.js queryUserRecordsByDate");
-
-    const user = await checkUserIdentity(auth, db);
-
-    // doctor & oneself
-    if (user.identity !== "doctor" && user.username !== patientName)
+    if (!request.user) throw new Error("Unauthenticated operation");
+    if (
+      request.user.identity !== "doctor" &&
+      request.user.username !== patientName
+    )
+      // doctor & oneself
       throw new Error("Only doctor and patient oneself can see one's record");
 
     // patient exist
@@ -64,7 +66,7 @@ const Query = {
     return r || null;
   },
 
-  async queryAppointment(parent, { date, auth }, { db, pubsub }, info) {
+  async queryAppointment(parent, { date }, { db, request }, info) {
     console.log("resolvers/Query/queryAppointment");
 
     // check opendays
@@ -76,26 +78,24 @@ const Query = {
     const appointments = await db.AppointmentModel.find({ date: date });
 
     // not logged in
-    if (!auth)
+    if (!request.user)
       return {
         doctor: open.doctor,
         number: appointments.length,
         appointments: [],
       };
 
-    const user = await checkUserIdentity(auth, db);
-
-    if (user.identity === "patient") {
+    if (request.user.identity === "patient") {
       return {
         doctor: open.doctor,
         number: appointments.length,
         appointments: appointments.filter((appoint) =>
-          appoint.patient.equals(user._id)
+          appoint.patient.equals(request.user._id)
         ),
       };
     }
 
-    // doctor
+    // request.user.identity === "doctor"
     return { doctor: open.doctor, number: appointments.length, appointments };
   },
 };

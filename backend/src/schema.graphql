@@ -1,32 +1,25 @@
 type Query {
   # Record
-  queryUserRecords(patientName: String!, auth: UserInput!): [Record!]
-  queryUserRecordsByDate(
-    patientName: String!
-    date: String!
-    auth: UserInput!
-  ): Record
+  queryUserRecords(patientName: String!): [Record!]
+  queryUserRecordsByDate(patientName: String!, date: String!): Record
   # Appointment
-  queryAppointment(date: String!, auth: UserInput): DailyAppointmentReturn!
+  queryAppointment(date: String!): DailyAppointmentReturn!
   # Openday
   queryOpenday: [Openday!]
 }
 
 type Mutation {
   # User
-  signup(data: UserInput!): User! #createUser
-  login(data: UserInput!): User!
-  deleteUser(data: UserInput!): User!
-  updateUserUsername(data: UserInput!, newUsername: String!): User!
-  updateUserPassword(data: UserInput!, newPassword: String!): User!
+  login(data: UserInput!): AuthData!
+  createUser(data: UserInput!): Boolean!
+  deleteUser(username: String!): Boolean!
+  updateUserUsername(auth: UserInput!, newUsername: String!): Boolean!
+  updateUserPassword(auth: UserInput!, newPassword: String!): Boolean!
   # Appointment
-  createAppointment(
-    data: CreatAppointmentInput!
-    auth: UserInput!
-  ): Appointment! # create / update
-  deleteAppointment(date: String!, auth: UserInput!): Appointment!
+  createAppointment(data: CreatAppointmentInput!): Appointment! # create / update
+  deleteAppointment(date: String!): Appointment!
   # Record
-  createRecord(data: CreateRecordInput!, auth: UserInput!): Record! # create / update
+  createRecord(data: CreateRecordInput!): Record! # create / update
   # Openday
   createOpenday(data: OpendayInput!): Openday!
   deleteOpenday(weekday: Weekday!): Openday!
@@ -64,6 +57,12 @@ type User {
   password: String!
   identity: String!
   records: [Record!]
+}
+
+type AuthData {
+  username: String!
+  identity: String!
+  token: String!
 }
 
 input CreateRecordInput {

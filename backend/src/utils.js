@@ -1,6 +1,11 @@
 import bcrypt from "bcrypt";
+import dotenv from "dotenv";
+dotenv.config({ path: "./.env" });
+
+export const APP_SECRET = process.env.APP_SECRET;
 
 export const saltRounds = 10;
+
 export const WEEKDAY_DICT = {
   0: "SUNDAY",
   1: "MONDAY",
@@ -9,19 +14,4 @@ export const WEEKDAY_DICT = {
   4: "THURSDAY",
   5: "FRIDAY",
   6: "SATURDAY",
-};
-
-export const checkUserIdentity = async (auth, db) => {
-  // user exist
-  const user = await db.UserModel.findOne({
-    username: auth.username,
-    identity: auth.identity,
-  });
-  if (!user) throw new Error("No such user. Authentication failed.");
-
-  // validate password
-  const valid = await bcrypt.compare(auth.password, user.password);
-  if (!valid) throw new Error("Invalid password. Authentication failed.");
-
-  return user;
 };
