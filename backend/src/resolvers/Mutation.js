@@ -62,7 +62,7 @@ const Mutation = {
   async deleteUser(parent, { username }, { db, request }, info) {
     console.log("resolvers/Mutation/deleteUser");
     if (!request.user) throw new Error("Unauthenticated operation");
-    if (request.user.name !== "admin")
+    if (request.user.username !== "admin")
       throw new Error("Only admin can create user");
 
     const user = await db.UserModel.findOne({
@@ -290,7 +290,7 @@ const Mutation = {
     if (existing)
       return await db.OpendayModel.findOneAndUpdate(
         { weekday: args.weekday },
-        { ...data },
+        { ...args },
         { new: true } // return updated
       );
 
