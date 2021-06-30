@@ -242,9 +242,9 @@ const UserControl = ({ user, setUser }) => {
                 <DeleteUserModal
                   visible={deleteModalVisible}
                   identity={user.identity}
-                  onCreate={async (username) => {
+                  onCreate={async (user) => {
                     await deleteUser({
-                      variables: { username },
+                      variables: { username: user.username },
                       context: {
                         headers: {
                           authorization: token ? `Bearer ${token}` : "",
@@ -277,7 +277,7 @@ const UserControl = ({ user, setUser }) => {
         <>
           <Button
             type="primary"
-            style={{borderRadius: "5px"}}
+            style={{ borderRadius: "5px" }}
             onClick={() => {
               setLoginModalVisible(true);
             }}

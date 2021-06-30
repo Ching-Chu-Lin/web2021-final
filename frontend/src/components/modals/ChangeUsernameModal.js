@@ -55,7 +55,7 @@ const ChangeUsernameModal = ({ visible, user, onCreate, onCancel }) => {
         </Form.Item>
 
         <Form.Item
-          name="oldPassword"
+          name="password"
           label="密碼"
           rules={[
             {
