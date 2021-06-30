@@ -1,5 +1,4 @@
 import { Modal, Form, Input, Button } from "antd";
-import { useState } from "react";
 
 const ChangeUsernameModal = ({ visible, user, onCreate, onCancel }) => {
   const [form] = Form.useForm();
