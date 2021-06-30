@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useQuery, useMutation } from "@apollo/react-hooks";
 import moment from "moment";
 import { makeStyles, GridListTile } from "@material-ui/core";
 import { Button } from "antd";
 import AppointmentModal from "./modals/AppointmentModal";
 import PatientsModal from "./modals/PatientsModal";
+import AuthContext from "../context/AuthContext";
 import {
   APPOINTMENT_QUERY,
   CREATE_APPOINTMENT_MUTATION,
@@ -37,6 +38,8 @@ const Daily = ({ user, date }) => {
   }));
   const classes = useStyles();
 
+  const [token, setToken] = useContext(AuthContext);
+
   const thisDay = moment(date);
 
   const [modalVisible, setModalVisible] = useState(false);
@@ -46,9 +49,17 @@ const Daily = ({ user, date }) => {
     error,
     data: { queryAppointment: dailyData } = {},
     subscribeToMore,
+    refetch,
   } = useQuery(APPOINTMENT_QUERY, {
-    variables: { date, auth: user },
+    variables: { date },
+    context: {
+      headers: {
+        authorization: token ? `Bearer ${token}` : "",
+      },
+    },
   });
+
+  useEffect(() => refetch(), [token]);
 
   const [makeAppointment] = useMutation(CREATE_APPOINTMENT_MUTATION);
 
@@ -159,7 +170,12 @@ const Daily = ({ user, date }) => {
               appointment={dailyData.appointments[0]}
               onCreate={async (appointment) => {
                 const appointmentReturn = await makeAppointment({
-                  variables: { data: { date, ...appointment }, auth: user },
+                  variables: { data: { date, ...appointment } },
+                  context: {
+                    headers: {
+                      authorization: token ? `Bearer ${token}` : "",
+                    },
+                  },
                 });
                 setModalVisible(false);
               }}
@@ -167,7 +183,14 @@ const Daily = ({ user, date }) => {
                 setModalVisible(false);
               }}
               onDelete={async () => {
-                await deleteAppointment({ variables: { date, auth: user } });
+                await deleteAppointment({
+                  variables: { date },
+                  context: {
+                    headers: {
+                      authorization: token ? `Bearer ${token}` : "",
+                    },
+                  },
+                });
                 setModalVisible(false);
               }}
             />
@@ -194,7 +217,12 @@ const Daily = ({ user, date }) => {
               mode="create"
               onCreate={async (appointment) => {
                 const appointmentReturn = await makeAppointment({
-                  variables: { data: { date, ...appointment }, auth: user },
+                  variables: { data: { date, ...appointment } },
+                  context: {
+                    headers: {
+                      authorization: token ? `Bearer ${token}` : "",
+                    },
+                  },
                 });
                 setModalVisible(false);
               }}

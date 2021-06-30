@@ -1,8 +1,8 @@
 import { gql } from "@apollo/client";
 
 export const USER_RECORDS_QUERY = gql`
-  query queryUserRecords($patientName: String!, $auth: UserInput!) {
-    queryUserRecords(patientName: $patientName, auth: $auth) {
+  query queryUserRecords($patientName: String!) {
+    queryUserRecords(patientName: $patientName) {
       date
       part
       level
@@ -14,16 +14,8 @@ export const USER_RECORDS_QUERY = gql`
 `;
 
 export const DAILY_USER_RECORD_QUERY = gql`
-  query queryUserRecordsByDate(
-    $patientName: String!
-    $date: String!
-    $auth: UserInput!
-  ) {
-    queryUserRecordsByDate(
-      patientName: $patientName
-      date: $date
-      auth: $auth
-    ) {
+  query queryUserRecordsByDate($patientName: String!, $date: String!) {
+    queryUserRecordsByDate(patientName: $patientName, date: $date) {
       part
       level
       description
@@ -34,8 +26,8 @@ export const DAILY_USER_RECORD_QUERY = gql`
 `;
 
 export const APPOINTMENT_QUERY = gql`
-  query queryAppointment($date: String!, $auth: UserInput) {
-    queryAppointment(date: $date, auth: $auth) {
+  query queryAppointment($date: String!) {
+    queryAppointment(date: $date) {
       doctor
       number
       appointments {

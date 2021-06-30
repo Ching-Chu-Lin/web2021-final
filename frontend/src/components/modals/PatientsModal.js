@@ -2,6 +2,7 @@ import { Modal, Layout, Menu, Form, Button } from "antd";
 import { useState } from "react";
 import { useQuery, useMutation } from "@apollo/react-hooks";
 import RecordForm from "../forms/RecordForm";
+import AuthContext from "../context/AuthContext";
 import { DAILY_USER_RECORD_QUERY, CREATE_RECORD_MUTATION } from "../../graphql";
 
 const PatientsModal = ({
@@ -15,6 +16,8 @@ const PatientsModal = ({
 }) => {
   const { Sider, Content } = Layout;
   const [form] = Form.useForm();
+
+  const [token, setToken] = useContext(AuthContext);
 
   const isReadOnly = (mode) => {
     switch (mode) {
@@ -38,7 +41,8 @@ const PatientsModal = ({
     subscribeToMore,
     refetch,
   } = useQuery(DAILY_USER_RECORD_QUERY, {
-    variables: { date, patientName: currentPatient, auth: user },
+    variables: { date, patientName: currentPatient },
+    context: { headers: { authorization: token ? `Bearer ${token}` : "" } },
   });
 
   const [saveRecord] = useMutation(CREATE_RECORD_MUTATION);
@@ -47,10 +51,8 @@ const PatientsModal = ({
     form.validateFields().then(async (values) => {
       console.log(values);
       const savedRecord = await saveRecord({
-        variables: {
-          data: { date, patientName: currentPatient, ...values },
-          auth: user,
-        },
+        variables: { data: { date, patientName: currentPatient, ...values } },
+        context: { headers: { authorization: token ? `Bearer ${token}` : "" } },
       });
       console.log(savedRecord);
     });
