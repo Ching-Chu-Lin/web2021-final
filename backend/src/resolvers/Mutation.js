@@ -1,5 +1,5 @@
 import uuidv4 from "uuid/v4";
-import moment from "moment";
+import moment, { relativeTimeRounding } from "moment";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { ObjectId } from "mongodb";
@@ -56,7 +56,7 @@ const Mutation = {
       record: [],
     }).save();
 
-    return user;
+    return true;
   },
 
   async deleteUser(parent, { username }, { db, request }, info) {
@@ -70,6 +70,8 @@ const Mutation = {
       identity: request.user.identity,
     });
 
+    if (!user) throw new Error("No such user");
+
     // delete
     user.records.forEach(async (recordId) => {
       await db.RecordModel.findOneAndDelete({ _id: ObjectId(recordId) });
@@ -77,19 +79,38 @@ const Mutation = {
     await db.AppointmentModel.deleteMany({ patient: user._id });
     // return { "acknowledged" : true, "deletedCount" : 10 }
 
-    return await db.UserModel.findOneAndDelete({
+    await db.UserModel.findOneAndDelete({
       username: username,
       identity: request.user.identity,
     });
+
+    return true;
   },
-  async updateUserUsername(parent, { newUsername }, { db, request }, info) {
+  async updateUserUsername(
+    parent,
+    { auth, newUsername },
+    { db, request },
+    info
+  ) {
     console.log("resolvers/Mutation/updateUserUsername");
     if (!request.user) throw new Error("Unauthenticated operation");
+
+    // authentication once more
+    // user exist
+    const user = await db.UserModel.findOne({
+      username: auth.username,
+      identity: auth.identity,
+    });
+    if (!user) throw new Error("No such user. Authentication failed.");
+
+    // validate password
+    const valid = await bcrypt.compare(auth.password, user.password);
+    if (!valid) throw new Error("Invalid password. Authentication failed.");
 
     // empty username
     if (!newUsername) throw new Error("Username cannot be empty");
 
-    return await db.UserModel.findOneAndUpdate(
+    await db.UserModel.findOneAndUpdate(
       {
         username: request.user.username,
         identity: request.user.identity,
@@ -97,17 +118,31 @@ const Mutation = {
       { username: newUsername },
       { new: true } // return updated
     );
+
+    return true;
   },
   async updateUserPassword(parent, { newPassword }, { db, request }, info) {
     console.log("resolvers/Mutation/updateUserPassword");
     if (!request.user) throw new Error("Unauthenticated operation");
+
+    // authentication once more
+    // user exist
+    const user = await db.UserModel.findOne({
+      username: auth.username,
+      identity: auth.identity,
+    });
+    if (!user) throw new Error("No such user. Authentication failed.");
+
+    // validate password
+    const valid = await bcrypt.compare(auth.password, user.password);
+    if (!valid) throw new Error("Invalid password. Authentication failed.");
 
     // empty password
     if (!newPassword) throw new Error("Password cannot be empty");
 
     // sha256 hash password
     const password = await bcrypt.hash(newPassword, saltRounds);
-    return await db.UserModel.findOneAndUpdate(
+    await db.UserModel.findOneAndUpdate(
       {
         username: request.user.username,
         identity: request.user.identity,
@@ -115,6 +150,7 @@ const Mutation = {
       { password: password },
       { new: true } // return updated
     );
+    return true;
   },
 
   /**

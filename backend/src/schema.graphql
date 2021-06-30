@@ -11,10 +11,10 @@ type Query {
 type Mutation {
   # User
   login(data: UserInput!): AuthData!
-  createUser(data: UserInput!): User!
-  deleteUser(username: String!): User!
-  updateUserUsername(newUsername: String!): User!
-  updateUserPassword(newPassword: String!): User!
+  createUser(data: UserInput!): Boolean!
+  deleteUser(username: String!): Boolean!
+  updateUserUsername(auth: UserInput!, newUsername: String!): Boolean!
+  updateUserPassword(auth: UserInput!, newPassword: String!): Boolean!
   # Appointment
   createAppointment(data: CreatAppointmentInput!): Appointment! # create / update
   deleteAppointment(date: String!): Appointment!
