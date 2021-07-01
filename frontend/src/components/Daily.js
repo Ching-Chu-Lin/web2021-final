@@ -2,10 +2,11 @@ import { useState, useEffect, useContext } from "react";
 import { useQuery, useMutation } from "@apollo/react-hooks";
 import moment from "moment";
 import { makeStyles, GridListTile } from "@material-ui/core";
-import { Button } from "antd";
+import { Button, Spin } from "antd";
 import AppointmentModal from "./modals/AppointmentModal";
 import PatientsModal from "./modals/PatientsModal";
 import AuthContext from "../context/AuthContext";
+import DisplayContext from "../context/DisplayContext";
 import {
   APPOINTMENT_QUERY,
   CREATE_APPOINTMENT_MUTATION,
@@ -14,6 +15,8 @@ import {
 } from "../graphql";
 
 const Daily = ({ user, date }) => {
+  const { displayStatus } = useContext(DisplayContext);
+
   const useStyles = makeStyles((theme) => ({
     root: {
       display: "flex",
@@ -92,17 +95,35 @@ const Daily = ({ user, date }) => {
               left: "0",
               right: "0",
               margin: "auto",
-              borderRadius: "5px"
+              borderRadius: "5px",
             }}
           >
             {thisDay.format("MM/DD")}
           </p>
         </GridListTile>
       ) : !dailyData ? (
-        <GridListTile
-          key={date}
-          className={classes.futureDateTile}
-        ></GridListTile>
+        <GridListTile key={date} className={classes.futureDateTile}>
+          <p
+            style={{
+              position: "absolute",
+              top: "5%",
+              left: "0",
+              right: "0",
+              margin: "auto",
+            }}
+          >
+            {thisDay.format("MM/DD")}
+          </p>
+          {loading && console.log("spinning") && (
+            <Spin
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            />
+          )}
+        </GridListTile>
       ) : dailyData.doctor === "" ? (
         <GridListTile key={date} className={classes.futureDateTile}>
           <p
@@ -191,31 +212,39 @@ const Daily = ({ user, date }) => {
                   mode="modify"
                   appointment={dailyData.appointments[0]}
                   onCreate={async (appointment) => {
-                    await makeAppointment({
-                      variables: { data: { date, ...appointment } },
-                      context: {
-                        headers: {
-                          authorization: token ? `Bearer ${token}` : "",
+                    try {
+                      await makeAppointment({
+                        variables: { data: { date, ...appointment } },
+                        context: {
+                          headers: {
+                            authorization: token ? `Bearer ${token}` : "",
+                          },
                         },
-                      },
-                    });
-                    // console.log("appointment");
-                    // refetch();
-                    setModalVisible(false);
+                      });
+                      // console.log("appointment");
+                      // refetch();
+                      setModalVisible(false);
+                    } catch (e) {
+                      displayStatus({ type: "error", msg: e.message });
+                    }
                   }}
                   onCancel={() => {
                     setModalVisible(false);
                   }}
                   onDelete={async () => {
-                    await deleteAppointment({
-                      variables: { date },
-                      context: {
-                        headers: {
-                          authorization: token ? `Bearer ${token}` : "",
+                    try {
+                      await deleteAppointment({
+                        variables: { date },
+                        context: {
+                          headers: {
+                            authorization: token ? `Bearer ${token}` : "",
+                          },
                         },
-                      },
-                    });
-                    setModalVisible(false);
+                      });
+                      setModalVisible(false);
+                    } catch (e) {
+                      displayStatus({ type: "error", msg: e.message });
+                    }
                   }}
                 />
               </>
@@ -240,17 +269,21 @@ const Daily = ({ user, date }) => {
                   visible={modalVisible}
                   mode="create"
                   onCreate={async (appointment) => {
-                    const appointmentReturn = await makeAppointment({
-                      variables: { data: { date, ...appointment } },
-                      context: {
-                        headers: {
-                          authorization: token ? `Bearer ${token}` : "",
+                    try {
+                      const appointmentReturn = await makeAppointment({
+                        variables: { data: { date, ...appointment } },
+                        context: {
+                          headers: {
+                            authorization: token ? `Bearer ${token}` : "",
+                          },
                         },
-                      },
-                    });
-                    // console.log("appointment");
-                    // refetch();
-                    setModalVisible(false);
+                      });
+                      // console.log("appointment");
+                      // refetch();
+                      setModalVisible(false);
+                    } catch (e) {
+                      displayStatus({ type: "error", msg: e.message });
+                    }
                   }}
                   onCancel={() => {
                     setModalVisible(false);
@@ -289,7 +322,7 @@ const Daily = ({ user, date }) => {
             <></>
           )}
         </GridListTile>
-      )}{" "}
+      )}
     </>
   );
 };

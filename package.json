@@ -6,7 +6,7 @@
   "author": "Ching-Chu-Lin <b06902111@ntu.edu.tw>",
   "license": "MIT",
   "scripts": {
-      "start" : "cd frontend && yarn start",
-      "server": "cd backend && yarn server"
+    "start" : "cd frontend && yarn start",
+    "server": "cd backend && yarn server"
   }
 }

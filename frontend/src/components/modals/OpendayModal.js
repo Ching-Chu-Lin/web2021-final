@@ -1,4 +1,4 @@
-import { Modal, Button } from "antd";
+import { Modal, Button, Spin } from "antd";
 import { useEffect, useContext } from "react";
 import { useQuery } from "@apollo/react-hooks";
 import OpendayForm from "../forms/OpendayForm";
@@ -10,7 +10,7 @@ const OpendayModal = ({ visible, onCancel }) => {
 
   const createFooter = () => {
     return [
-      <Button style={{borderRadius: "5px"}} key="close" onClick={onCancel}>
+      <Button style={{ borderRadius: "5px" }} key="close" onClick={onCancel}>
         關閉
       </Button>,
     ];
@@ -49,6 +49,16 @@ const OpendayModal = ({ visible, onCancel }) => {
       footer={createFooter()}
       onCancel={onCancel}
     >
+      {error && console.log(error)}
+      {loading && console.log("spinning") && (
+        <Spin
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        />
+      )}
       {opendays && opendays.map((day) => <OpendayForm day={day} />)}
     </Modal>
   );
