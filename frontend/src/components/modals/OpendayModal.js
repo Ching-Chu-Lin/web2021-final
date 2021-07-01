@@ -32,16 +32,6 @@ const OpendayModal = ({ visible, onCancel }) => {
 
   useEffect(() => refetch(), [token]);
 
-  // const opendays = [
-  //   { weekday: "SUNDAY", doctor: "" },
-  //   { weekday: "MONDAY", doctor: "1" },
-  //   { weekday: "TUESDAY", doctor: "2" },
-  //   { weekday: "WEDNESDAY", doctor: "3" },
-  //   { weekday: "THURSDAY", doctor: "4" },
-  //   { weekday: "FRIDAY", doctor: "5" },
-  //   { weekday: "SATURDAY", doctor: "" },
-  // ];
-
   return (
     <Modal
       visible={visible}
@@ -50,7 +40,10 @@ const OpendayModal = ({ visible, onCancel }) => {
       onCancel={onCancel}
     >
       {error && console.log(error)}
-      {loading && console.log("spinning") && (
+
+      {opendays ? (
+        opendays.map((day) => <OpendayForm day={day} />)
+      ) : (
         <Spin
           style={{
             display: "flex",
@@ -59,7 +52,6 @@ const OpendayModal = ({ visible, onCancel }) => {
           }}
         />
       )}
-      {opendays && opendays.map((day) => <OpendayForm day={day} />)}
     </Modal>
   );
 };

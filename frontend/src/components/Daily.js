@@ -77,8 +77,6 @@ const Daily = ({ user, date }) => {
 
   useEffect(() => refetch(), [token]);
 
-  useEffect(() => console.log(dailyData), [dailyData]);
-
   const [makeAppointment] = useMutation(CREATE_APPOINTMENT_MUTATION);
 
   const [deleteAppointment] = useMutation(DELETE_APPOINTMENT_MUTATION);
@@ -114,15 +112,13 @@ const Daily = ({ user, date }) => {
           >
             {thisDay.format("MM/DD")}
           </p>
-          {loading && console.log("spinning") && (
-            <Spin
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            />
-          )}
+          <Spin
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          />
         </GridListTile>
       ) : dailyData.doctor === "" ? (
         <GridListTile key={date} className={classes.futureDateTile}>

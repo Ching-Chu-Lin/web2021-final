@@ -209,16 +209,7 @@ const UserControl = ({ user, setUser }) => {
                   }
                 }}
               >
-                {loading && console.log("spinning") && (
-                  <Spin
-                    style={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                  />
-                )}
-                {records &&
+                {records ? (
                   records.map((record) => (
                     <Menu.Item
                       key={record.date}
@@ -229,7 +220,16 @@ const UserControl = ({ user, setUser }) => {
                     >
                       {record.date}
                     </Menu.Item>
-                  ))}
+                  ))
+                ) : (
+                  <Spin
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  />
+                )}
                 <RecordModal
                   visible={recordModalVisible}
                   record={currentRecord}
