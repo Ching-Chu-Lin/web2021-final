@@ -137,19 +137,23 @@ const UserControl = ({ user, setUser }) => {
                     visible={cnameModalVisible}
                     user={user}
                     onCreate={async (info) => {
-                      await changeUsername({
-                        variables: {
-                          auth: { password: info.password, ...user },
-                          newUsername: info.newUsername,
-                        },
-                        context: {
-                          headers: {
-                            authorization: token ? `Bearer ${token}` : "",
+                      try {
+                        await changeUsername({
+                          variables: {
+                            auth: { password: info.password, ...user },
+                            newUsername: info.newUsername,
                           },
-                        },
-                      });
-                      setCnameModalVisible(false);
-                      logout();
+                          context: {
+                            headers: {
+                              authorization: token ? `Bearer ${token}` : "",
+                            },
+                          },
+                        });
+                        setCnameModalVisible(false);
+                        logout();
+                      } catch (e) {
+                        displayStatus({ type: "error", msg: e.message });
+                      }
                     }}
                     onCancel={() => setCnameModalVisible(false)}
                   />
@@ -165,19 +169,23 @@ const UserControl = ({ user, setUser }) => {
                 visible={cpModalVisible}
                 user={user}
                 onCreate={async (info) => {
-                  await changePassword({
-                    variables: {
-                      auth: { password: info.oldPassword, ...user },
-                      newPassword: info.newPassword,
-                    },
-                    context: {
-                      headers: {
-                        authorization: token ? `Bearer ${token}` : "",
+                  try {
+                    await changePassword({
+                      variables: {
+                        auth: { password: info.oldPassword, ...user },
+                        newPassword: info.newPassword,
                       },
-                    },
-                  });
-                  setCpModalVisible(false);
-                  logout();
+                      context: {
+                        headers: {
+                          authorization: token ? `Bearer ${token}` : "",
+                        },
+                      },
+                    });
+                    setCpModalVisible(false);
+                    logout();
+                  } catch (e) {
+                    displayStatus({ type: "error", msg: e.message });
+                  }
                 }}
                 onCancel={() => setCpModalVisible(false)}
               />
@@ -187,14 +195,18 @@ const UserControl = ({ user, setUser }) => {
                 key="my-record"
                 title="我的病歷"
                 onTitleClick={async () => {
-                  await getRecord({
-                    variables: { patientName: user.username },
-                    context: {
-                      headers: {
-                        authorization: token ? `Bearer ${token}` : "",
+                  try {
+                    await getRecord({
+                      variables: { patientName: user.username },
+                      context: {
+                        headers: {
+                          authorization: token ? `Bearer ${token}` : "",
+                        },
                       },
-                    },
-                  });
+                    });
+                  } catch (e) {
+                    displayStatus({ type: "error", msg: e.message });
+                  }
                 }}
               >
                 {loading && console.log("spinning") && (
@@ -238,15 +250,19 @@ const UserControl = ({ user, setUser }) => {
                   visible={createModalVisible}
                   identity={user.identity}
                   onCreate={async (user) => {
-                    await createUser({
-                      variables: { data: user },
-                      context: {
-                        headers: {
-                          authorization: token ? `Bearer ${token}` : "",
+                    try {
+                      await createUser({
+                        variables: { data: user },
+                        context: {
+                          headers: {
+                            authorization: token ? `Bearer ${token}` : "",
+                          },
                         },
-                      },
-                    });
-                    setCreateModalVisible(false);
+                      });
+                      setCreateModalVisible(false);
+                    } catch (e) {
+                      displayStatus({ type: "error", msg: e.message });
+                    }
                   }}
                   onCancel={() => setCreateModalVisible(false)}
                 />
@@ -260,15 +276,19 @@ const UserControl = ({ user, setUser }) => {
                   visible={deleteModalVisible}
                   identity={user.identity}
                   onCreate={async (user) => {
-                    await deleteUser({
-                      variables: { username: user.username },
-                      context: {
-                        headers: {
-                          authorization: token ? `Bearer ${token}` : "",
+                    try {
+                      await deleteUser({
+                        variables: { username: user.username },
+                        context: {
+                          headers: {
+                            authorization: token ? `Bearer ${token}` : "",
+                          },
                         },
-                      },
-                    });
-                    setDeleteModalVisible(false);
+                      });
+                      setDeleteModalVisible(false);
+                    } catch (e) {
+                      displayStatus({ type: "error", msg: e.message });
+                    }
                   }}
                   onCancel={() => setDeleteModalVisible(false)}
                 />

@@ -61,23 +61,31 @@ const OpendayForm = ({ day }) => {
       .validateFields()
       .then(async ({ open, doctor }) => {
         if (open) {
-          await createOpenday({
-            variables: { data: { weekday: day.weekday, doctor } },
-            context: {
-              headers: {
-                authorization: token ? `Bearer ${token}` : "",
+          try {
+            await createOpenday({
+              variables: { data: { weekday: day.weekday, doctor } },
+              context: {
+                headers: {
+                  authorization: token ? `Bearer ${token}` : "",
+                },
               },
-            },
-          });
+            });
+          } catch (e) {
+            displayStatus({ type: "error", msg: e.message });
+          }
         } else {
-          await deleteOpenday({
-            variables: { weekday: day.weekday },
-            context: {
-              headers: {
-                authorization: token ? `Bearer ${token}` : "",
+          try {
+            await deleteOpenday({
+              variables: { weekday: day.weekday },
+              context: {
+                headers: {
+                  authorization: token ? `Bearer ${token}` : "",
+                },
               },
-            },
-          });
+            });
+          } catch (e) {
+            displayStatus({ type: "error", msg: e.message });
+          }
         }
         setReadOnly(true);
         displayStatus({ type: "success", msg: "修改成功" });
