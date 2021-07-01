@@ -1,4 +1,4 @@
-import { Modal, Layout, Menu, Form, Button } from "antd";
+import { Modal, Layout, Menu, Form, Button, Spin } from "antd";
 import { useState, useEffect, useContext } from "react";
 import { useQuery, useMutation } from "@apollo/react-hooks";
 import RecordForm from "../forms/RecordForm";
@@ -120,7 +120,7 @@ const PatientsModal = ({ visible, mode, date, appointments, onCancel }) => {
       onCancel={onCancel}
       onOk={onOk}
     >
-      {console.log(error)}
+      {error && console.log(error)}
       <Layout>
         <Sider width="20%" theme="light">
           <Menu mode="inline">
@@ -155,6 +155,15 @@ const PatientsModal = ({ visible, mode, date, appointments, onCancel }) => {
             paddingBottom: "0px",
           }}
         >
+          {loading && console.log("spinning") && (
+            <Spin
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            />
+          )}
           <RecordForm form={form} readOnly={readOnly} />
         </Content>
       </Layout>

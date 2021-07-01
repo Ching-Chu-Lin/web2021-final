@@ -1,4 +1,4 @@
-import { Button, Menu } from "antd";
+import { Button, Menu, Spin } from "antd";
 import { useState, useEffect, useContext } from "react";
 import { useQuery, useLazyQuery, useMutation } from "@apollo/react-hooks";
 import AuthContext from "../context/AuthContext";
@@ -197,6 +197,15 @@ const UserControl = ({ user, setUser }) => {
                   });
                 }}
               >
+                {loading && console.log("spinning") && (
+                  <Spin
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  />
+                )}
                 {records &&
                   records.map((record) => (
                     <Menu.Item

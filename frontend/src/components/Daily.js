@@ -2,7 +2,7 @@ import { useState, useEffect, useContext } from "react";
 import { useQuery, useMutation } from "@apollo/react-hooks";
 import moment from "moment";
 import { makeStyles, GridListTile } from "@material-ui/core";
-import { Button } from "antd";
+import { Button, Spin } from "antd";
 import AppointmentModal from "./modals/AppointmentModal";
 import PatientsModal from "./modals/PatientsModal";
 import AuthContext from "../context/AuthContext";
@@ -111,6 +111,15 @@ const Daily = ({ user, date }) => {
           >
             {thisDay.format("MM/DD")}
           </p>
+          {loading && console.log("spinning") && (
+            <Spin
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            />
+          )}
         </GridListTile>
       ) : dailyData.doctor === "" ? (
         <GridListTile key={date} className={classes.futureDateTile}>
