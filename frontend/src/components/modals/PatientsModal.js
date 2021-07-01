@@ -1,8 +1,9 @@
-import { Modal, Layout, Menu, Form, Button } from "antd";
+import { Modal, Layout, Menu, Form, Button, Spin } from "antd";
 import { useState, useEffect, useContext } from "react";
 import { useQuery, useMutation } from "@apollo/react-hooks";
 import RecordForm from "../forms/RecordForm";
 import AuthContext from "../../context/AuthContext";
+import DisplayContext from "../../context/DisplayContext";
 import {
   DAILY_USER_RECORD_QUERY,
   CREATE_RECORD_MUTATION,
@@ -14,6 +15,8 @@ const PatientsModal = ({ visible, mode, date, appointments, onCancel }) => {
   const [form] = Form.useForm();
 
   const [token, setToken] = useContext(AuthContext);
+
+  const { displayStatus } = useContext(DisplayContext);
 
   const isReadOnly = (mode) => {
     switch (mode) {
@@ -55,20 +58,23 @@ const PatientsModal = ({ visible, mode, date, appointments, onCancel }) => {
   const [saveRecord] = useMutation(CREATE_RECORD_MUTATION);
 
   const onOk = () => {
-    form.validateFields().then(async (values) => {
-      console.log(values);
-      const savedRecord = await saveRecord({
-        variables: { data: { date, patientName: currentPatient, ...values } },
-        context: { headers: { authorization: token ? `Bearer ${token}` : "" } },
+    form
+      .validateFields()
+      .then(async (values) => {
+        const savedRecord = await saveRecord({
+          variables: { data: { date, patientName: currentPatient, ...values } },
+          context: {
+            headers: { authorization: token ? `Bearer ${token}` : "" },
+          },
+        });
+        if (saveRecord) displayStatus({ type: "success", msg: "儲存成功" });
+      })
+      .catch((e) => {
+        displayStatus({
+          type: "error",
+          msg: e.message,
+        });
       });
-      console.log(savedRecord);
-    });
-    // .catch((e) => {
-    //   displayStatus({
-    //     type: "error",
-    //     msg: e.message,
-    //   });
-    // });
   };
 
   const createFooter = (mode) => {
@@ -114,7 +120,7 @@ const PatientsModal = ({ visible, mode, date, appointments, onCancel }) => {
       onCancel={onCancel}
       onOk={onOk}
     >
-      {console.log(error)}
+      {error && console.log(error)}
       <Layout>
         <Sider width="20%" theme="light">
           <Menu mode="inline">
@@ -124,15 +130,19 @@ const PatientsModal = ({ visible, mode, date, appointments, onCancel }) => {
                   style={{ margin: "auto" }}
                   key={appointment.patient.username}
                   onClick={async () => {
-                    setCurrentPatient(appointment.patient.username);
-                    await refetch();
-                    form.setFieldsValue(
-                      record || {
-                        ...appointment,
-                        injury: null,
-                        treatment: null,
-                      }
-                    );
+                    try {
+                      setCurrentPatient(appointment.patient.username);
+                      await refetch();
+                      form.setFieldsValue(
+                        record || {
+                          ...appointment,
+                          injury: null,
+                          treatment: null,
+                        }
+                      );
+                    } catch (e) {
+                      displayStatus({ type: "error", msg: e.message });
+                    }
                   }}
                 >
                   {appointment.patient.username}
@@ -149,6 +159,15 @@ const PatientsModal = ({ visible, mode, date, appointments, onCancel }) => {
             paddingBottom: "0px",
           }}
         >
+          {loading && console.log("spinning") && (
+            <Spin
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            />
+          )}
           <RecordForm form={form} readOnly={readOnly} />
         </Content>
       </Layout>
