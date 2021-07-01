@@ -32,10 +32,7 @@ const LoginModal = ({ visible, onCreate, onCancel }) => {
       onCreate({ username, password, identity });
     });
     // .catch((e) => {
-    //   displayStatus({
-    //     type: "error",
-    //     msg: e.message,
-    //   });
+    //   console.log(e);
     // });
   };
 
@@ -45,13 +42,18 @@ const LoginModal = ({ visible, onCreate, onCancel }) => {
 
   const createFooter = () => {
     return [
-      <Button style={{borderRadius: "5px"}} key="login" type="primary" onClick={onOk}>
+      <Button
+        style={{ borderRadius: "5px" }}
+        key="login"
+        type="primary"
+        onClick={onOk}
+      >
         登入
       </Button>,
       // <Button key="forget" type="danger" onClick={onForgetPassword}>
       //   忘記密碼
       // </Button>,
-      <Button key="cancel" onClick={onCancel}>
+      <Button style={{ borderRadius: "5px" }} key="cancel" onClick={onCancel}>
         取消
       </Button>,
     ];

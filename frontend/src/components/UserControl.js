@@ -2,6 +2,7 @@ import { Button, Menu } from "antd";
 import { useState, useEffect, useContext } from "react";
 import { useQuery, useLazyQuery, useMutation } from "@apollo/react-hooks";
 import AuthContext from "../context/AuthContext";
+import DisplayContext from "../context/DisplayContext";
 import LoginModal from "./modals/LoginModal";
 import ChangeUsernameModal from "./modals/ChangeUsernameModal";
 import ChangePasswordModal from "./modals/ChangePasswordModal";
@@ -21,6 +22,8 @@ import {
 
 const UserControl = ({ user, setUser }) => {
   const [token, setToken] = useContext(AuthContext);
+
+  const { displayStatus } = useContext(DisplayContext);
 
   const { SubMenu } = Menu;
 
@@ -106,7 +109,12 @@ const UserControl = ({ user, setUser }) => {
             姓名：{user.username}
           </div>
           <Button
-            style={{ position: "absolute", left: "33%", top: "6%" }}
+            style={{
+              position: "absolute",
+              left: "33%",
+              top: "6%",
+              borderRadius: "5px",
+            }}
             type="primary"
             onClick={logout}
           >
@@ -287,13 +295,17 @@ const UserControl = ({ user, setUser }) => {
           <LoginModal
             visible={loginModalVisible}
             onCreate={async (user) => {
-              const userReturn = await login({ variables: { data: user } });
-              setUser({
-                username: userReturn.data.login.username,
-                identity: userReturn.data.login.identity,
-              });
-              setToken(userReturn.data.login.token);
-              setLoginModalVisible(false);
+              try {
+                const userReturn = await login({ variables: { data: user } });
+                setUser({
+                  username: userReturn.data.login.username,
+                  identity: userReturn.data.login.identity,
+                });
+                setToken(userReturn.data.login.token);
+                setLoginModalVisible(false);
+              } catch (e) {
+                displayStatus({ type: "error", msg: e.message });
+              }
             }}
             onCancel={() => {
               setLoginModalVisible(false);

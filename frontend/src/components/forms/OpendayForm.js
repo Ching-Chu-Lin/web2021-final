@@ -1,7 +1,8 @@
-import { Form, Input, Button, Radio , Modal } from "antd";
+import { Form, Input, Button, Radio, Modal } from "antd";
 import { useState, useContext } from "react";
 import { useMutation } from "@apollo/react-hooks";
 import AuthContext from "../../context/AuthContext";
+import DisplayContext from "../../context/DisplayContext";
 import {
   CREATE_OPENDAY_MUTATION,
   DELETE_OPENDAY_MUTATION,
@@ -11,6 +12,8 @@ const OpendayForm = ({ day }) => {
   const [form] = Form.useForm();
 
   const [token, setToken] = useContext(AuthContext);
+
+  const { displayStatus } = useContext(DisplayContext);
 
   const weekdayEtoC = (weekday) => {
     switch (weekday) {
@@ -54,28 +57,37 @@ const OpendayForm = ({ day }) => {
   const [deleteOpenday] = useMutation(DELETE_OPENDAY_MUTATION);
 
   const onConfirm = () => {
-    form.validateFields().then(async ({ open, doctor }) => {
-      if (open) {
-        await createOpenday({
-          variables: { data: { weekday: day.weekday, doctor } },
-          context: {
-            headers: {
-              authorization: token ? `Bearer ${token}` : "",
+    form
+      .validateFields()
+      .then(async ({ open, doctor }) => {
+        if (open) {
+          await createOpenday({
+            variables: { data: { weekday: day.weekday, doctor } },
+            context: {
+              headers: {
+                authorization: token ? `Bearer ${token}` : "",
+              },
             },
-          },
-        });
-      } else {
-        await deleteOpenday({
-          variables: { weekday: day.weekday },
-          context: {
-            headers: {
-              authorization: token ? `Bearer ${token}` : "",
+          });
+        } else {
+          await deleteOpenday({
+            variables: { weekday: day.weekday },
+            context: {
+              headers: {
+                authorization: token ? `Bearer ${token}` : "",
+              },
             },
-          },
+          });
+        }
+        setReadOnly(true);
+        displayStatus({ type: "success", msg: "修改成功" });
+      })
+      .catch((e) => {
+        displayStatus({
+          type: "error",
+          msg: e.message,
         });
-      }
-      setReadOnly(true);
-    });
+      });
   };
 
   const onEdit = () => {
@@ -85,21 +97,19 @@ const OpendayForm = ({ day }) => {
   const { confirm } = Modal;
   const showConfirm = () => {
     confirm({
-      title: "確定修改？",
-      onOk(){
+      title: "確定送出？",
+      onOk() {
         onConfirm();
       },
-      onCancel(){
-
-      },
+      onCancel() {},
     });
-  }
+  };
 
   return (
     <Form
       form={form}
       name="openday_form"
-      style={{padding: "10px"}}
+      style={{ padding: "10px" }}
       layout="inline"
       initialValues={{ open, doctor: day.doctor || "" }}
       onValuesChange={onOpenChange}
@@ -140,11 +150,21 @@ const OpendayForm = ({ day }) => {
 
       <Form.Item>
         {readOnly ? (
-          <Button key="modify" type="primary" onClick={onEdit}>
+          <Button
+            style={{ borderRadius: "5px" }}
+            key="modify"
+            type="primary"
+            onClick={onEdit}
+          >
             修改
           </Button>
         ) : (
-          <Button key="modify" type="primary" onClick={showConfirm}>
+          <Button
+            style={{ borderRadius: "5px" }}
+            key="modify"
+            type="primary"
+            onClick={showConfirm}
+          >
             送出
           </Button>
         )}

@@ -10,7 +10,7 @@ const OpendayModal = ({ visible, onCancel }) => {
 
   const createFooter = () => {
     return [
-      <Button key="close" onClick={onCancel}>
+      <Button style={{borderRadius: "5px"}} key="close" onClick={onCancel}>
         關閉
       </Button>,
     ];
@@ -48,9 +48,7 @@ const OpendayModal = ({ visible, onCancel }) => {
       title="服務時間"
       footer={createFooter()}
       onCancel={onCancel}
-      // onOk={onOk}
     >
-      {console.log(opendays)}
       {opendays && opendays.map((day) => <OpendayForm day={day} />)}
     </Modal>
   );

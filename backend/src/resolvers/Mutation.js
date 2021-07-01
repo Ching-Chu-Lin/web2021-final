@@ -281,7 +281,7 @@ const Mutation = {
   /**
    * Openday
    */
-  async createOpenday(parent, { data: args }, { db }, info) {
+  async createOpenday(parent, { data: args }, { db, request }, info) {
     console.log("resolvers/Mutation/createOpenday");
     if (!request.user) throw new Error("Unauthenticated operation");
     if (request.user.username !== "admin")

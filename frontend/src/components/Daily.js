@@ -92,16 +92,26 @@ const Daily = ({ user, date }) => {
               left: "0",
               right: "0",
               margin: "auto",
+              borderRadius: "5px",
             }}
           >
             {thisDay.format("MM/DD")}
           </p>
         </GridListTile>
       ) : !dailyData ? (
-        <GridListTile
-          key={date}
-          className={classes.futureDateTile}
-        ></GridListTile>
+        <GridListTile key={date} className={classes.futureDateTile}>
+          <p
+            style={{
+              position: "absolute",
+              top: "5%",
+              left: "0",
+              right: "0",
+              margin: "auto",
+            }}
+          >
+            {thisDay.format("MM/DD")}
+          </p>
+        </GridListTile>
       ) : dailyData.doctor === "" ? (
         <GridListTile key={date} className={classes.futureDateTile}>
           <p
@@ -288,7 +298,7 @@ const Daily = ({ user, date }) => {
             <></>
           )}
         </GridListTile>
-      )}{" "}
+      )}
     </>
   );
 };
