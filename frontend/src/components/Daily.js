@@ -6,6 +6,7 @@ import { Button } from "antd";
 import AppointmentModal from "./modals/AppointmentModal";
 import PatientsModal from "./modals/PatientsModal";
 import AuthContext from "../context/AuthContext";
+import DisplayContext from "../context/DisplayContext";
 import {
   APPOINTMENT_QUERY,
   CREATE_APPOINTMENT_MUTATION,
@@ -14,6 +15,8 @@ import {
 } from "../graphql";
 
 const Daily = ({ user, date }) => {
+  const { displayStatus } = useContext(DisplayContext);
+
   const useStyles = makeStyles((theme) => ({
     root: {
       display: "flex",
@@ -200,31 +203,39 @@ const Daily = ({ user, date }) => {
                   mode="modify"
                   appointment={dailyData.appointments[0]}
                   onCreate={async (appointment) => {
-                    await makeAppointment({
-                      variables: { data: { date, ...appointment } },
-                      context: {
-                        headers: {
-                          authorization: token ? `Bearer ${token}` : "",
+                    try {
+                      await makeAppointment({
+                        variables: { data: { date, ...appointment } },
+                        context: {
+                          headers: {
+                            authorization: token ? `Bearer ${token}` : "",
+                          },
                         },
-                      },
-                    });
-                    // console.log("appointment");
-                    // refetch();
-                    setModalVisible(false);
+                      });
+                      // console.log("appointment");
+                      // refetch();
+                      setModalVisible(false);
+                    } catch (e) {
+                      displayStatus({ type: "error", msg: e.message });
+                    }
                   }}
                   onCancel={() => {
                     setModalVisible(false);
                   }}
                   onDelete={async () => {
-                    await deleteAppointment({
-                      variables: { date },
-                      context: {
-                        headers: {
-                          authorization: token ? `Bearer ${token}` : "",
+                    try {
+                      await deleteAppointment({
+                        variables: { date },
+                        context: {
+                          headers: {
+                            authorization: token ? `Bearer ${token}` : "",
+                          },
                         },
-                      },
-                    });
-                    setModalVisible(false);
+                      });
+                      setModalVisible(false);
+                    } catch (e) {
+                      displayStatus({ type: "error", msg: e.message });
+                    }
                   }}
                 />
               </>
@@ -249,17 +260,21 @@ const Daily = ({ user, date }) => {
                   visible={modalVisible}
                   mode="create"
                   onCreate={async (appointment) => {
-                    const appointmentReturn = await makeAppointment({
-                      variables: { data: { date, ...appointment } },
-                      context: {
-                        headers: {
-                          authorization: token ? `Bearer ${token}` : "",
+                    try {
+                      const appointmentReturn = await makeAppointment({
+                        variables: { data: { date, ...appointment } },
+                        context: {
+                          headers: {
+                            authorization: token ? `Bearer ${token}` : "",
+                          },
                         },
-                      },
-                    });
-                    // console.log("appointment");
-                    // refetch();
-                    setModalVisible(false);
+                      });
+                      // console.log("appointment");
+                      // refetch();
+                      setModalVisible(false);
+                    } catch (e) {
+                      displayStatus({ type: "error", msg: e.message });
+                    }
                   }}
                   onCancel={() => {
                     setModalVisible(false);

@@ -130,15 +130,19 @@ const PatientsModal = ({ visible, mode, date, appointments, onCancel }) => {
                   style={{ margin: "auto" }}
                   key={appointment.patient.username}
                   onClick={async () => {
-                    setCurrentPatient(appointment.patient.username);
-                    await refetch();
-                    form.setFieldsValue(
-                      record || {
-                        ...appointment,
-                        injury: null,
-                        treatment: null,
-                      }
-                    );
+                    try {
+                      setCurrentPatient(appointment.patient.username);
+                      await refetch();
+                      form.setFieldsValue(
+                        record || {
+                          ...appointment,
+                          injury: null,
+                          treatment: null,
+                        }
+                      );
+                    } catch (e) {
+                      displayStatus({ type: "error", msg: e.message });
+                    }
                   }}
                 >
                   {appointment.patient.username}
